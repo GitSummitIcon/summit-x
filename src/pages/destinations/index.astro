@@ -1,0 +1,44 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import NavSummitX from "../../components/NavSummitX.astro";
+import Footer from "../../components/Footer.astro";
+import { sanityClient } from "../../lib/sanity";
+
+const destinations = await sanityClient.fetch(`
+  *[_type == "destination"] | order(name asc) {
+    _id, name, slug, region, intro,
+    "heroUrl": heroImage.asset->url + "?w=800&auto=format"
+  }
+`);
+---
+
+<BaseLayout title="Destinations — Summit X" description="Explore Summit X alpine and expedition destinations worldwide.">
+  <NavSummitX />
+  <main id="main">
+    <div class="page-hero container">
+      <p class="label-eyebrow reveal">Explore</p>
+      <h1 class="display reveal reveal-delay-1">Destinations</h1>
+    </div>
+    <div class="container">
+      {destinations.length === 0 ? (
+        <p style="padding-block: 4rem; color: var(--muted-foreground);">Destinations coming soon.</p>
+      ) : (
+        <div class="card-grid">
+          {destinations.map((dest: any) => (
+            <a href={`/destinations/${dest.slug.current}`} class="card reveal">
+              <div class="card-media image-frame">
+                {dest.heroUrl && <img src={dest.heroUrl} alt={dest.name} loading="lazy" />}
+              </div>
+              <div class="card-body">
+                {dest.region && <p class="label-eyebrow">{dest.region}</p>}
+                <h2 class="card-title display">{dest.name}</h2>
+                {dest.intro && <p class="spec-line">{dest.intro}</p>}
+              </div>
+            </a>
+          ))}
+        </div>
+      )}
+    </div>
+  </main>
+  <Footer />
+</BaseLayout>

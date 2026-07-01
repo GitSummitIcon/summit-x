@@ -1,0 +1,46 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import NavSummitX from "../../components/NavSummitX.astro";
+import Footer from "../../components/Footer.astro";
+import { sanityClient } from "../../lib/sanity";
+
+const lodges = await sanityClient.fetch(`
+  *[_type == "lodge"] | order(name asc) {
+    _id, name, slug, style,
+    "cardUrl": gallery[0].asset->url + "?w=800&auto=format",
+    "destination": destination->name
+  }
+`);
+---
+
+<BaseLayout title="Lodges — Summit X" description="Remote mountain lodges and backcountry stays curated by Summit X.">
+  <NavSummitX />
+  <main id="main">
+    <div class="page-hero container">
+      <p class="label-eyebrow reveal">Collection</p>
+      <h1 class="display reveal reveal-delay-1">Lodges</h1>
+    </div>
+    <div class="container">
+      {lodges.length === 0 ? (
+        <p style="padding-block: 4rem; color: var(--muted-foreground);">Lodges coming soon.</p>
+      ) : (
+        <div class="card-grid">
+          {lodges.map((lodge: any) => (
+            <a href={`/lodges/${lodge.slug.current}`} class="card reveal">
+              <div class="card-media image-frame">
+                {lodge.cardUrl && <img src={lodge.cardUrl} alt={lodge.name} loading="lazy" />}
+              </div>
+              <div class="card-body">
+                <p class="label-eyebrow">
+                  {[lodge.style, lodge.destination].filter(Boolean).join(" · ")}
+                </p>
+                <h2 class="card-title display">{lodge.name}</h2>
+              </div>
+            </a>
+          ))}
+        </div>
+      )}
+    </div>
+  </main>
+  <Footer />
+</BaseLayout>

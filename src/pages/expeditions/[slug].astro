@@ -1,0 +1,124 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import NavSummitX from "../../components/NavSummitX.astro";
+import Footer from "../../components/Footer.astro";
+import PortableText from "../../components/PortableText.astro";
+import EnquiryCTA from "../../components/EnquiryCTA.astro";
+import LightboxGallery from "../../components/LightboxGallery.astro";
+import PropertyMap from "../../components/PropertyMap.astro";
+import { sanityClient } from "../../lib/sanity";
+
+export async function getStaticPaths() {
+  const items = await sanityClient.fetch(`*[_type == "expedition"]{ "slug": slug.current }`);
+  return items.map((item: { slug: string }) => ({ params: { slug: item.slug } }));
+}
+
+const { slug } = Astro.params;
+
+const expedition = await sanityClient.fetch(`
+  *[_type == "expedition" && slug.current == $slug][0] {
+    name, lodgeType, season, duration, description,
+    "location": location{ lat, lng },
+    "heroUrl": gallery[0].asset->url + "?w=1600&auto=format",
+    "gallery": gallery[]{ "url": asset->url + "?w=1200&auto=format" },
+    "destination": destination->{ name, "slug": slug.current }
+  }
+`, { slug });
+
+if (!expedition) return Astro.redirect("/expeditions");
+
+const descParts = [
+  expedition.destination?.name && `in ${expedition.destination.name}`,
+  expedition.duration,
+  expedition.season && `${expedition.season} season`,
+].filter(Boolean).join(", ");
+const description = `${expedition.name}${descParts ? ` — ${descParts}` : ""}. A guided mountain expedition curated by Summit X.`;
+
+const structuredData = {
+  "@context": "https://schema.org",
+  "@type": "TouristTrip",
+  name: expedition.name,
+  description,
+  url: `https://summitx.iconprivatecollection.com/expeditions/${slug}`,
+  ...(expedition.heroUrl && { image: expedition.heroUrl }),
+  ...(expedition.destination && { itinerary: { "@type": "Place", name: expedition.destination.name } }),
+  ...(expedition.duration && { duration: expedition.duration }),
+  touristType: "Adventure travellers",
+  provider: {
+    "@type": "TravelAgency",
+    name: "Summit X",
+    email: "summitx@iconprivatecollection.com",
+    parentOrganization: { "@type": "Organization", name: "Icon Private Collection" },
+  },
+};
+---
+
+<BaseLayout
+  title={`${expedition.name} — Summit X`}
+  description={description}
+  image={expedition.heroUrl ?? undefined}
+  structuredData={structuredData}
+>
+  <NavSummitX />
+  <main id="main">
+    {expedition.heroUrl && (
+      <div class="detail-hero">
+        <img src={expedition.heroUrl} alt={expedition.name} loading="eager" />
+        <div class="overlay" style="background: var(--grad-veil);"></div>
+        {expedition.gallery?.length > 1 && (
+          <button class="hero-photo-count" data-lb-open="0">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            {expedition.gallery.length} photos
+          </button>
+        )}
+      </div>
+    )}
+
+    <div class="detail-header container">
+      {expedition.destination && (
+        <p class="label-eyebrow reveal">
+          <a href={`/destinations/${expedition.destination.slug}`}>{expedition.destination.name}</a>
+        </p>
+      )}
+      <h1 class="display reveal reveal-delay-1">{expedition.name}</h1>
+    </div>
+
+    <div class="container detail-body">
+      <div class="detail-description">
+        {expedition.description && <PortableText blocks={expedition.description} />}
+      </div>
+      <aside class="detail-aside">
+        <div class="detail-specs">
+          <p class="label-eyebrow" style="margin-bottom: 0.5rem;">At a glance</p>
+          {expedition.lodgeType && (
+            <div class="detail-spec-row">
+              <span class="label-eyebrow">Lodge type</span>
+              <span>{expedition.lodgeType}</span>
+            </div>
+          )}
+          {expedition.season && (
+            <div class="detail-spec-row">
+              <span class="label-eyebrow">Season</span>
+              <span>{expedition.season}</span>
+            </div>
+          )}
+          {expedition.duration && (
+            <div class="detail-spec-row">
+              <span class="label-eyebrow">Duration</span>
+              <span>{expedition.duration}</span>
+            </div>
+          )}
+        </div>
+      </aside>
+    </div>
+
+    {expedition.location?.lat && expedition.location?.lng && (
+      <PropertyMap lat={expedition.location.lat} lng={expedition.location.lng} label={expedition.name} />
+    )}
+
+    <LightboxGallery images={expedition.gallery ?? []} />
+
+    <EnquiryCTA propertyName={expedition.name} />
+  </main>
+  <Footer />
+</BaseLayout>

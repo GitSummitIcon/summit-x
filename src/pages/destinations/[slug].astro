@@ -1,0 +1,195 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import NavSummitX from "../../components/NavSummitX.astro";
+import Footer from "../../components/Footer.astro";
+import PortableText from "../../components/PortableText.astro";
+import { sanityClient } from "../../lib/sanity";
+
+export async function getStaticPaths() {
+  const items = await sanityClient.fetch(`*[_type == "destination"]{ "slug": slug.current }`);
+  return items.map((item: { slug: string }) => ({ params: { slug: item.slug } }));
+}
+
+const { slug } = Astro.params;
+
+const destination = await sanityClient.fetch(`
+  *[_type == "destination" && slug.current == $slug][0] {
+    name, region, intro, description,
+    "heroUrl": heroImage.asset->url + "?w=1600&auto=format",
+    "gallery": gallery[]{ "url": asset->url + "?w=1200&auto=format" },
+    "chalets": *[_type == "chalet" && references(^._id)] | order(name asc) {
+      name, slug, bedrooms, sleeps,
+      "cardUrl": gallery[0].asset->url + "?w=800&auto=format"
+    },
+    "expeditions": *[_type == "expedition" && references(^._id)] | order(name asc) {
+      name, slug, season, duration,
+      "cardUrl": gallery[0].asset->url + "?w=800&auto=format"
+    },
+    "heliSkis": *[_type == "heliSki" && references(^._id)] | order(name asc) {
+      name, slug, terrainType, season,
+      "cardUrl": gallery[0].asset->url + "?w=800&auto=format"
+    },
+    "lodges": *[_type == "lodge" && references(^._id)] | order(name asc) {
+      name, slug, style,
+      "cardUrl": gallery[0].asset->url + "?w=800&auto=format"
+    },
+    "editArticles": *[_type == "theEdit" && references(^._id)] | order(_createdAt desc) {
+      title, slug, category,
+      "cardUrl": images[0].asset->url + "?w=800&auto=format"
+    }
+  }
+`, { slug });
+
+if (!destination) return Astro.redirect("/destinations");
+
+const description = destination.intro ?? `Discover ${destination.name}${destination.region ? `, ${destination.region}` : ""} — luxury alpine chalets, expeditions and heli-ski curated by Summit X.`;
+
+const structuredData = {
+  "@context": "https://schema.org",
+  "@type": "TouristDestination",
+  name: destination.name,
+  description,
+  url: `https://summitx.iconprivatecollection.com/destinations/${slug}`,
+  ...(destination.heroUrl && { image: destination.heroUrl }),
+  ...(destination.region && { containedInPlace: { "@type": "Place", name: destination.region } }),
+  touristType: "Luxury alpine travellers",
+};
+---
+
+<BaseLayout
+  title={`${destination.name} — Summit X`}
+  description={description}
+  image={destination.heroUrl ?? undefined}
+  structuredData={structuredData}
+>
+  <NavSummitX />
+  <main id="main">
+    {destination.heroUrl && (
+      <div class="detail-hero">
+        <img src={destination.heroUrl} alt={destination.name} loading="eager" />
+        <div class="overlay" style="background: var(--grad-veil);"></div>
+      </div>
+    )}
+
+    <div class="detail-header container">
+      {destination.region && <p class="label-eyebrow reveal">{destination.region}</p>}
+      <h1 class="display reveal reveal-delay-1">{destination.name}</h1>
+      {destination.intro && (
+        <p class="reveal reveal-delay-2" style="max-width: 48rem; color: var(--muted-foreground); margin-top: 1rem; line-height: 1.7;">
+          {destination.intro}
+        </p>
+      )}
+    </div>
+
+    {destination.description && (
+      <div class="container" style="padding-block: clamp(3rem, 6vw, 5rem);">
+        <div class="detail-description" style="max-width: 48rem;">
+          <PortableText blocks={destination.description} />
+        </div>
+      </div>
+    )}
+
+    {destination.chalets?.length > 0 && (
+      <div class="hub-section container">
+        <p class="label-eyebrow">Chalets</p>
+        <h2 class="display">Stay here</h2>
+        <div class="card-grid">
+          {destination.chalets.map((item: any) => (
+            <a href={`/chalets/${item.slug.current}`} class="card reveal">
+              <div class="card-media image-frame">
+                {item.cardUrl && <img src={item.cardUrl} alt={item.name} loading="lazy" />}
+              </div>
+              <div class="card-body">
+                <p class="label-eyebrow">{[item.bedrooms && `${item.bedrooms} bed`, item.sleeps && `sleeps ${item.sleeps}`].filter(Boolean).join(" · ")}</p>
+                <h3 class="card-title display">{item.name}</h3>
+              </div>
+            </a>
+          ))}
+        </div>
+      </div>
+    )}
+
+    {destination.expeditions?.length > 0 && (
+      <div class="hub-section container">
+        <p class="label-eyebrow">Expeditions</p>
+        <h2 class="display">Go further</h2>
+        <div class="card-grid">
+          {destination.expeditions.map((item: any) => (
+            <a href={`/expeditions/${item.slug.current}`} class="card reveal">
+              <div class="card-media image-frame">
+                {item.cardUrl && <img src={item.cardUrl} alt={item.name} loading="lazy" />}
+              </div>
+              <div class="card-body">
+                <p class="label-eyebrow">{[item.season, item.duration].filter(Boolean).join(" · ")}</p>
+                <h3 class="card-title display">{item.name}</h3>
+              </div>
+            </a>
+          ))}
+        </div>
+      </div>
+    )}
+
+    {destination.heliSkis?.length > 0 && (
+      <div class="hub-section container">
+        <p class="label-eyebrow">Heli-Ski</p>
+        <h2 class="display">Take to the peaks</h2>
+        <div class="card-grid">
+          {destination.heliSkis.map((item: any) => (
+            <a href={`/heli-ski/${item.slug.current}`} class="card reveal">
+              <div class="card-media image-frame">
+                {item.cardUrl && <img src={item.cardUrl} alt={item.name} loading="lazy" />}
+              </div>
+              <div class="card-body">
+                <p class="label-eyebrow">{[item.terrainType, item.season].filter(Boolean).join(" · ")}</p>
+                <h3 class="card-title display">{item.name}</h3>
+              </div>
+            </a>
+          ))}
+        </div>
+      </div>
+    )}
+
+    {destination.lodges?.length > 0 && (
+      <div class="hub-section container">
+        <p class="label-eyebrow">Lodges</p>
+        <h2 class="display">Base camp</h2>
+        <div class="card-grid">
+          {destination.lodges.map((item: any) => (
+            <a href={`/lodges/${item.slug.current}`} class="card reveal">
+              <div class="card-media image-frame">
+                {item.cardUrl && <img src={item.cardUrl} alt={item.name} loading="lazy" />}
+              </div>
+              <div class="card-body">
+                {item.style && <p class="label-eyebrow">{item.style}</p>}
+                <h3 class="card-title display">{item.name}</h3>
+              </div>
+            </a>
+          ))}
+        </div>
+      </div>
+    )}
+
+    {destination.editArticles?.length > 0 && (
+      <div class="hub-section surface-section" style="padding-inline: var(--gutter);">
+        <div class="container" style="padding-inline: 0;">
+          <p class="label-eyebrow">The Edit</p>
+          <h2 class="display">From our journal</h2>
+          <div class="the-edit-grid">
+            {destination.editArticles.map((item: any) => (
+              <a href={`/the-edit/${item.slug.current}`} class="article-card reveal">
+                <div class="article-card-media image-frame">
+                  {item.cardUrl && <img src={item.cardUrl} alt={item.title} loading="lazy" />}
+                </div>
+                <div class="article-card-body">
+                  {item.category && <p class="label-eyebrow" style="text-transform: capitalize;">{item.category}</p>}
+                  <h3 class="article-title display">{item.title}</h3>
+                </div>
+              </a>
+            ))}
+          </div>
+        </div>
+      </div>
+    )}
+  </main>
+  <Footer />
+</BaseLayout>

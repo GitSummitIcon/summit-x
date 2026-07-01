@@ -1,0 +1,111 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import NavSummitX from "../../components/NavSummitX.astro";
+import Footer from "../../components/Footer.astro";
+import PortableText from "../../components/PortableText.astro";
+import LightboxGallery from "../../components/LightboxGallery.astro";
+import { sanityClient } from "../../lib/sanity";
+
+export async function getStaticPaths() {
+  const items = await sanityClient.fetch(`*[_type == "theEdit"]{ "slug": slug.current }`);
+  return items.map((item: { slug: string }) => ({ params: { slug: item.slug } }));
+}
+
+const { slug } = Astro.params;
+
+const article = await sanityClient.fetch(`
+  *[_type == "theEdit" && slug.current == $slug][0] {
+    title, category, author, body,
+    "heroUrl": images[0].asset->url + "?w=1600&auto=format",
+    "images": images[]{ "url": asset->url + "?w=1200&auto=format" },
+    "relatedDestination": relatedDestination->{ name, "slug": slug.current }
+  }
+`, { slug });
+
+if (!article) return Astro.redirect("/the-edit");
+
+const description = `${article.title} — from The Edit, the Summit X journal on alpine travel, culture, and adventure.`;
+
+const structuredData = {
+  "@context": "https://schema.org",
+  "@type": "Article",
+  headline: article.title,
+  description,
+  url: `https://summitx.iconprivatecollection.com/the-edit/${slug}`,
+  ...(article.heroUrl && { image: article.heroUrl }),
+  ...(article.author && { author: { "@type": "Person", name: article.author } }),
+  publisher: {
+    "@type": "Organization",
+    name: "Summit X",
+    parentOrganization: { "@type": "Organization", name: "Icon Private Collection" },
+  },
+  isPartOf: {
+    "@type": "PublicationVolume",
+    name: "The Edit — Summit X",
+  },
+};
+---
+
+<BaseLayout
+  title={`${article.title} — The Edit — Summit X`}
+  description={description}
+  image={article.heroUrl ?? undefined}
+  type="article"
+  structuredData={structuredData}
+>
+  <NavSummitX />
+  <main id="main">
+    {article.heroUrl && (
+      <div class="detail-hero">
+        <img src={article.heroUrl} alt={article.title} loading="eager" />
+        <div class="overlay" style="background: var(--grad-veil);"></div>
+        {article.images?.length > 1 && (
+          <button class="hero-photo-count" data-lb-open="0">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            {article.images.length} images
+          </button>
+        )}
+      </div>
+    )}
+
+    <div class="detail-header container">
+      <p class="label-eyebrow reveal">
+        {[article.category && article.category.charAt(0).toUpperCase() + article.category.slice(1), "The Edit"].filter(Boolean).join(" — ")}
+      </p>
+      <h1 class="display reveal reveal-delay-1">{article.title}</h1>
+      {article.author && (
+        <p class="reveal reveal-delay-2" style="margin-top: 1rem; color: var(--muted-foreground);">
+          By {article.author}
+        </p>
+      )}
+    </div>
+
+    <div class="container detail-body" style="padding-block: clamp(4rem, 8vw, 6rem);">
+      <div class="article-body">
+        {article.body && <PortableText blocks={article.body} />}
+      </div>
+
+      {article.relatedDestination && (
+        <aside style="grid-column: 10 / span 3; align-self: start; position: sticky; top: 6rem;">
+          <p class="label-eyebrow" style="margin-bottom: 0.75rem;">Destination</p>
+          <div style="border: 1px solid var(--border); padding: 1.5rem; background: var(--surface);">
+            <p class="display" style="font-size: 1.35rem; margin: 0 0 1rem;">{article.relatedDestination.name}</p>
+            <a class="button-link" href={`/destinations/${article.relatedDestination.slug}`} style="font-size: 0.7rem;">
+              Explore <span aria-hidden="true">-&gt;</span>
+            </a>
+          </div>
+        </aside>
+      )}
+    </div>
+
+    <LightboxGallery images={article.images ?? []} />
+
+    <section class="surface-section" style="padding-block: clamp(3rem, 6vw, 5rem); border-top: 1px solid var(--border);">
+      <div class="container">
+        <p class="label-eyebrow" style="margin-bottom: 1rem;">Continue reading</p>
+        <a href="/the-edit" class="button-link">All articles <span aria-hidden="true">-&gt;</span></a>
+      </div>
+    </section>
+  </main>
+  <Footer />
+</BaseLayout>

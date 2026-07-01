@@ -1,0 +1,304 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import NavSummitX from "../components/NavSummitX.astro";
+import Footer from "../components/Footer.astro";
+import { siteConfig } from "../config/site";
+import { sanityClient } from "../lib/sanity";
+
+const [settings, destinations, editArticles, expeditions, heliSkis] = await Promise.all([
+  sanityClient.fetch(`
+    *[_type == "siteSettings"][0] {
+      "heroUrl": heroImage.asset->url + "?w=1920&auto=format",
+      "featuredChalet": featuredChalet->{
+        name, slug, bedrooms, sleeps, priceOnRequest, priceRange,
+        "cardUrl": gallery[0].asset->url + "?w=1200&auto=format",
+        "destination": destination->name
+      },
+      "featuredDestination": featuredDestination->{ name, slug, region }
+    }
+  `),
+  sanityClient.fetch(`
+    *[_type == "destination"] | order(name asc)[0...6] {
+      name, slug, region,
+      "heroUrl": heroImage.asset->url + "?w=800&auto=format"
+    }
+  `),
+  sanityClient.fetch(`
+    *[_type == "theEdit"] | order(_createdAt desc)[0...3] {
+      title, slug, category, author,
+      "cardUrl": images[0].asset->url + "?w=800&auto=format"
+    }
+  `),
+  sanityClient.fetch(`
+    *[_type == "expedition"] | order(name asc)[0...3] {
+      name, slug, season, duration,
+      "cardUrl": gallery[0].asset->url + "?w=800&auto=format",
+      "destination": destination->name
+    }
+  `),
+  sanityClient.fetch(`
+    *[_type == "heliSki"] | order(name asc)[0...3] {
+      name, slug, terrainType, season,
+      "cardUrl": gallery[0].asset->url + "?w=800&auto=format",
+      "destination": destination->name
+    }
+  `),
+]);
+
+const structuredData = {
+  "@context": "https://schema.org",
+  "@type": "TravelAgency",
+  name: siteConfig.name,
+  description: siteConfig.description,
+  url: "https://summitx.iconprivatecollection.com",
+  email: siteConfig.email,
+  parentOrganization: {
+    "@type": "Organization",
+    name: "Icon Private Collection",
+  },
+};
+---
+
+<BaseLayout
+  title={siteConfig.title}
+  description={siteConfig.description}
+  image={siteConfig.defaultImage}
+  structuredData={structuredData}
+>
+  <NavSummitX />
+
+  <main id="main">
+
+    <!-- Hero -->
+    <section id="top" class="hero" aria-labelledby="hero-title">
+      {settings?.heroUrl && (
+        <img class="media-fill" src={settings.heroUrl} alt="" loading="eager" decoding="sync" />
+      )}
+      <div class="overlay" style={settings?.heroUrl ? "background: var(--grad-vignette);" : "background: var(--background); opacity: 0.9;"}></div>
+      <div class="overlay" style="background: var(--grad-veil);"></div>
+      <div class="hero-content">
+        <div class="hero-grid">
+          <div class="hero-heading">
+            <p class="label-eyebrow reveal">Icon Private Collection</p>
+            <h1 id="hero-title" class="hero-title display reveal reveal-delay-1">
+              Alpine<br />
+              <span class="display-italic" style="color: var(--ember);">elegance</span><br />
+              and adventure.
+            </h1>
+          </div>
+          <div class="hero-copy reveal reveal-delay-2">
+            <p>{siteConfig.tagline}</p>
+            <div class="hero-actions">
+              <a class="button-link" href="/destinations">Explore destinations <span aria-hidden="true">-&gt;</span></a>
+              <a href={`mailto:${siteConfig.email}`} class="hero-enquire-link">Enquire</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Featured chalet -->
+    {settings?.featuredChalet && (
+      <section class="section surface-section" aria-labelledby="featured-heading">
+        <div class="container">
+          <p class="label-eyebrow reveal">This week's pick</p>
+          <div class="featured-block reveal reveal-delay-1">
+            <div class="featured-media image-frame">
+              {settings.featuredChalet.cardUrl && (
+                <img src={settings.featuredChalet.cardUrl} alt={settings.featuredChalet.name} loading="lazy" />
+              )}
+            </div>
+            <div class="featured-body">
+              {settings.featuredChalet.destination && (
+                <p class="label-eyebrow">{settings.featuredChalet.destination}</p>
+              )}
+              <h2 id="featured-heading" class="display featured-title">{settings.featuredChalet.name}</h2>
+              <p class="spec-line">
+                {[
+                  settings.featuredChalet.bedrooms && `${settings.featuredChalet.bedrooms} bedrooms`,
+                  settings.featuredChalet.sleeps && `sleeps ${settings.featuredChalet.sleeps}`,
+                ].filter(Boolean).join(" · ")}
+              </p>
+              <p class="featured-price">
+                {settings.featuredChalet.priceOnRequest || !settings.featuredChalet.priceRange?.min
+                  ? "Price on request"
+                  : `From ${settings.featuredChalet.priceRange.currency ?? "GBP"} ${settings.featuredChalet.priceRange.min.toLocaleString()}`}
+              </p>
+              <a class="button-link" href={`/chalets/${settings.featuredChalet.slug.current}`}>
+                View chalet <span aria-hidden="true">-&gt;</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+    )}
+
+    <!-- Destinations -->
+    {destinations.length > 0 && (
+      <section class="section" aria-labelledby="destinations-heading">
+        <div class="container">
+          <div class="section-intro">
+            <div>
+              <p class="label-eyebrow reveal">Where to go</p>
+              <h2 id="destinations-heading" class="display section-intro-heading reveal reveal-delay-1">Destinations</h2>
+            </div>
+            <a href="/destinations" class="button-link button-link--outline reveal">All destinations <span aria-hidden="true">-&gt;</span></a>
+          </div>
+          <div class="card-grid" style="padding-block: 0;">
+            {destinations.map((dest: any) => (
+              <a href={`/destinations/${dest.slug.current}`} class="card reveal">
+                <div class="card-media image-frame">
+                  {dest.heroUrl
+                    ? <img src={dest.heroUrl} alt={dest.name} loading="lazy" />
+                    : <div class="card-placeholder"></div>
+                  }
+                </div>
+                <div class="card-body">
+                  {dest.region && <p class="label-eyebrow">{dest.region}</p>}
+                  <h3 class="card-title display">{dest.name}</h3>
+                </div>
+              </a>
+            ))}
+          </div>
+        </div>
+      </section>
+    )}
+
+    <!-- Expeditions & Heli-Ski -->
+    {(expeditions.length > 0 || heliSkis.length > 0) && (
+      <section class="section surface-section" aria-labelledby="adventure-heading">
+        <div class="container">
+          <p class="label-eyebrow reveal">Go further</p>
+          <h2 id="adventure-heading" class="display section-intro-heading reveal reveal-delay-1">
+            Expeditions<br /><span class="display-italic" style="color: var(--ember);">& Heli-Ski</span>
+          </h2>
+          {expeditions.length > 0 && (
+            <div style="margin-top: clamp(2rem, 4vw, 3rem);">
+              <div class="collection-label-row">
+                <p class="label-eyebrow">Expeditions</p>
+                <a href="/expeditions" class="collection-view-all">View all -&gt;</a>
+              </div>
+              <div class="card-grid" style="padding-block: 0;">
+                {expeditions.map((exp: any) => (
+                  <a href={`/expeditions/${exp.slug.current}`} class="card reveal">
+                    <div class="card-media image-frame">
+                      {exp.cardUrl ? <img src={exp.cardUrl} alt={exp.name} loading="lazy" /> : <div class="card-placeholder"></div>}
+                    </div>
+                    <div class="card-body">
+                      <p class="label-eyebrow">{[exp.season, exp.duration, exp.destination].filter(Boolean).join(" · ")}</p>
+                      <h3 class="card-title display">{exp.name}</h3>
+                    </div>
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
+          {heliSkis.length > 0 && (
+            <div style="margin-top: clamp(3rem, 6vw, 5rem);">
+              <div class="collection-label-row">
+                <p class="label-eyebrow">Heli-Ski</p>
+                <a href="/heli-ski" class="collection-view-all">View all -&gt;</a>
+              </div>
+              <div class="card-grid" style="padding-block: 0;">
+                {heliSkis.map((hs: any) => (
+                  <a href={`/heli-ski/${hs.slug.current}`} class="card reveal">
+                    <div class="card-media image-frame">
+                      {hs.cardUrl ? <img src={hs.cardUrl} alt={hs.name} loading="lazy" /> : <div class="card-placeholder"></div>}
+                    </div>
+                    <div class="card-body">
+                      <p class="label-eyebrow">{[hs.terrainType, hs.season, hs.destination].filter(Boolean).join(" · ")}</p>
+                      <h3 class="card-title display">{hs.name}</h3>
+                    </div>
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </section>
+    )}
+
+    <!-- The Edit -->
+    {editArticles.length > 0 && (
+      <section class="section" aria-labelledby="edit-heading">
+        <div class="container">
+          <div class="section-intro">
+            <div>
+              <p class="label-eyebrow reveal">Journal</p>
+              <h2 id="edit-heading" class="display section-intro-heading reveal reveal-delay-1">The Edit</h2>
+            </div>
+            <a href="/the-edit" class="button-link button-link--outline reveal">All articles <span aria-hidden="true">-&gt;</span></a>
+          </div>
+          <div class="the-edit-grid" style="padding-block: 0;">
+            {editArticles.map((article: any) => (
+              <a href={`/the-edit/${article.slug.current}`} class="article-card reveal">
+                <div class="article-card-media image-frame">
+                  {article.cardUrl ? <img src={article.cardUrl} alt={article.title} loading="lazy" /> : <div class="card-placeholder"></div>}
+                </div>
+                <div class="article-card-body">
+                  {article.category && <p class="label-eyebrow" style="text-transform: capitalize;">{article.category}</p>}
+                  <h3 class="article-title display">{article.title}</h3>
+                  {article.author && <p class="spec-line">{article.author}</p>}
+                </div>
+              </a>
+            ))}
+          </div>
+        </div>
+      </section>
+    )}
+
+    <!-- Enquire -->
+    <section class="section reservation" aria-labelledby="enquire-heading">
+      <div class="overlay" style="background: var(--grad-vignette);"></div>
+      <div class="container section-grid" style="position: relative; z-index: 1;">
+        <div class="reservation-copy">
+          <p class="label-eyebrow reveal">Get in touch</p>
+          <h2 class="display reveal reveal-delay-1" id="enquire-heading">
+            Plan your<br />
+            <span class="display-italic" style="color: var(--ember);">next</span><br />
+            adventure.
+          </h2>
+          <p class="reveal reveal-delay-2">
+            Our team curates every detail — from chalet selection to helicopter transfers. Tell us what you have in mind.
+          </p>
+        </div>
+        <div class="reservation-form reveal">
+          <p class="label-eyebrow">Send an enquiry</p>
+          <div class="form-grid">
+            <div class="form-field--full">
+              <label class="label-eyebrow" for="name">Full name <span aria-hidden="true">*</span></label>
+              <input id="name" name="name" autocomplete="name" required />
+            </div>
+            <div>
+              <label class="label-eyebrow" for="email">Email <span aria-hidden="true">*</span></label>
+              <input id="email" name="email" type="email" autocomplete="email" required />
+            </div>
+            <div>
+              <label class="label-eyebrow" for="phone">Phone</label>
+              <input id="phone" name="phone" type="tel" autocomplete="tel" />
+            </div>
+            <div class="form-field--full">
+              <label class="label-eyebrow" for="interest">I'm interested in</label>
+              <select id="interest" name="interest">
+                {["Chalets", "Heli-Ski", "Expeditions", "Lodges", "Multiple"].map((opt) => (
+                  <option value={opt}>{opt}</option>
+                ))}
+              </select>
+            </div>
+            <div class="form-field--full">
+              <label class="label-eyebrow" for="message">Tell us more</label>
+              <textarea id="message" name="message" rows="3" placeholder="Destination, dates, group size, any other details."></textarea>
+            </div>
+          </div>
+          <a class="form-button" href={`mailto:${siteConfig.email}?subject=Summit X Enquiry`} style="display: inline-flex; margin-top: 1.5rem;">
+            Send enquiry <span aria-hidden="true">-&gt;</span>
+          </a>
+          <p style="color: var(--muted-foreground); font-size: 0.85rem; margin-top: 1rem;">We respond to every enquiry within 24 hours.</p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <Footer />
+</BaseLayout>

@@ -1,0 +1,47 @@
+---
+import { siteConfig } from "../config/site";
+
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer">
+  <div class="container footer-grid">
+    <div class="footer-brand">
+      <strong>{siteConfig.name.toUpperCase()}</strong>
+      <p>{siteConfig.tagline}</p>
+    </div>
+
+    <div class="footer-col">
+      <p class="label-eyebrow">Collections</p>
+      <ul>
+        <li><a href="/destinations">Destinations</a></li>
+        <li><a href="/chalets">Chalets</a></li>
+        <li><a href="/expeditions">Expeditions</a></li>
+        <li><a href="/heli-ski">Heli-Ski</a></li>
+        <li><a href="/lodges">Lodges</a></li>
+      </ul>
+    </div>
+
+    <div class="footer-col">
+      <p class="label-eyebrow">Journal</p>
+      <ul>
+        <li><a href="/the-edit">The Edit</a></li>
+        <li><a href={`mailto:${siteConfig.email}`}>{siteConfig.email}</a></li>
+      </ul>
+    </div>
+
+    <div class="footer-col">
+      <p class="label-eyebrow">Elsewhere</p>
+      <ul>
+        {siteConfig.social.map((item) => (
+          <li><a href={item.href} target="_blank" rel="noreferrer">{item.label}</a></li>
+        ))}
+      </ul>
+    </div>
+
+    <div class="footer-bottom">
+      <p>&copy; {year} Icon Private Collection. All rights reserved.</p>
+      <p><span class="ember-dot" aria-hidden="true"></span> {siteConfig.name}</p>
+    </div>
+  </div>
+</footer>

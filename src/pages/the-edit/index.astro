@@ -1,0 +1,44 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import NavSummitX from "../../components/NavSummitX.astro";
+import Footer from "../../components/Footer.astro";
+import { sanityClient } from "../../lib/sanity";
+
+const articles = await sanityClient.fetch(`
+  *[_type == "theEdit"] | order(_createdAt desc) {
+    _id, title, slug, category, author,
+    "cardUrl": images[0].asset->url + "?w=800&auto=format"
+  }
+`);
+---
+
+<BaseLayout title="The Edit — Summit X" description="Stories, guides, and features from the Summit X journal.">
+  <NavSummitX />
+  <main id="main">
+    <div class="page-hero container">
+      <p class="label-eyebrow reveal">Journal</p>
+      <h1 class="display reveal reveal-delay-1">The Edit</h1>
+    </div>
+    <div class="container">
+      {articles.length === 0 ? (
+        <p style="padding-block: 4rem; color: var(--muted-foreground);">Articles coming soon.</p>
+      ) : (
+        <div class="the-edit-grid">
+          {articles.map((article: any) => (
+            <a href={`/the-edit/${article.slug.current}`} class="article-card reveal">
+              <div class="article-card-media image-frame">
+                {article.cardUrl && <img src={article.cardUrl} alt={article.title} loading="lazy" />}
+              </div>
+              <div class="article-card-body">
+                {article.category && <p class="label-eyebrow" style="text-transform: capitalize;">{article.category}</p>}
+                <h2 class="article-title display">{article.title}</h2>
+                {article.author && <p class="spec-line">{article.author}</p>}
+              </div>
+            </a>
+          ))}
+        </div>
+      )}
+    </div>
+  </main>
+  <Footer />
+</BaseLayout>

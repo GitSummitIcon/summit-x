@@ -1,0 +1,81 @@
+---
+type Props = {
+  images: { url: string }[];
+};
+const { images } = Astro.props;
+const thumbs = images.slice(1);
+---
+
+{thumbs.length > 0 && (
+  <div class="detail-gallery container">
+    <p class="label-eyebrow">Gallery</p>
+    <div class="gallery-grid">
+      {thumbs.map((img, i) => (
+        <button class="gallery-thumb image-frame" data-lb-open={(i + 1).toString()} aria-label={`Open image ${i + 2}`}>
+          <img src={img.url} alt="" loading="lazy" />
+        </button>
+      ))}
+    </div>
+  </div>
+)}
+
+<div class="lightbox" id="lightbox" hidden>
+  <div id="lb-backdrop" style="position:absolute;inset:0;" aria-hidden="true"></div>
+  <button class="lightbox-close" id="lb-close" aria-label="Close">&#215;</button>
+  <button class="lightbox-arrow lightbox-prev" id="lb-prev" aria-label="Previous">&#8249;</button>
+  <button class="lightbox-arrow lightbox-next" id="lb-next" aria-label="Next">&#8250;</button>
+  <div class="lightbox-stage">
+    <img class="lightbox-img" id="lb-img" src="" alt="" />
+  </div>
+  <p class="lightbox-counter" id="lb-counter" aria-live="polite"></p>
+</div>
+
+<script define:vars={{ images }}>
+  const imgs = images;
+  let idx = 0;
+  const lb = document.getElementById("lightbox");
+  const lbImg = document.getElementById("lb-img");
+  const lbCount = document.getElementById("lb-counter");
+
+  function show(i) {
+    idx = ((i % imgs.length) + imgs.length) % imgs.length;
+    lbImg.src = imgs[idx].url;
+    lbCount.textContent = (idx + 1) + " / " + imgs.length;
+  }
+
+  function open(i) {
+    show(i);
+    lb.hidden = false;
+    document.body.style.overflow = "hidden";
+  }
+
+  function close() {
+    lb.hidden = true;
+    document.body.style.overflow = "";
+  }
+
+  document.addEventListener("click", function(e) {
+    const t = e.target.closest("[data-lb-open]");
+    if (!t) return;
+    e.preventDefault();
+    open(parseInt(t.dataset.lbOpen, 10));
+  });
+
+  document.getElementById("lb-backdrop").addEventListener("click", close);
+  document.getElementById("lb-close").addEventListener("click", close);
+  document.getElementById("lb-prev").addEventListener("click", function(e) {
+    e.stopPropagation();
+    show(idx - 1);
+  });
+  document.getElementById("lb-next").addEventListener("click", function(e) {
+    e.stopPropagation();
+    show(idx + 1);
+  });
+
+  document.addEventListener("keydown", function(e) {
+    if (lb.hidden) return;
+    if (e.key === "Escape") close();
+    if (e.key === "ArrowLeft") show(idx - 1);
+    if (e.key === "ArrowRight") show(idx + 1);
+  });
+</script>

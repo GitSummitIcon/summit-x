@@ -1,0 +1,77 @@
+---
+type Props = {
+  lat: number;
+  lng: number;
+  label: string;
+};
+const { lat, lng, label } = Astro.props;
+const mapId = `map-${Math.random().toString(36).slice(2, 8)}`;
+const detailsId = `details-${mapId}`;
+---
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+
+<div class="map-section container">
+  <details class="map-details reveal" id={detailsId}>
+    <summary class="map-summary">
+      <span class="map-summary-label">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+          <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>
+          <circle cx="12" cy="9" r="2.5"/>
+        </svg>
+        View location
+      </span>
+      <span class="map-chevron" aria-hidden="true">+</span>
+    </summary>
+    <div class="map-panel">
+      <div class="map-panel-inner">
+        <div id={mapId} class="property-map"></div>
+      </div>
+    </div>
+  </details>
+</div>
+
+<script define:vars={{ lat, lng, label, mapId, detailsId }}>
+  let initialized = false;
+
+  function initLeaflet() {
+    const L = window.L;
+    const map = L.map(mapId, {
+      center: [lat, lng],
+      zoom: 13,
+      scrollWheelZoom: false,
+      zoomControl: true,
+    });
+
+    L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions" target="_blank" rel="noopener">CARTO</a>',
+      subdomains: "abcd",
+      maxZoom: 19,
+    }).addTo(map);
+
+    const icon = L.divIcon({
+      className: "",
+      html: '<div style="width:14px;height:14px;background:#d98a34;border:2px solid #fbf0dc;border-radius:50%;box-shadow:0 2px 8px rgba(217,138,52,0.6);"></div>',
+      iconSize: [14, 14],
+      iconAnchor: [7, 7],
+      popupAnchor: [0, -10],
+    });
+
+    L.marker([lat, lng], { icon })
+      .addTo(map)
+      .bindPopup(`<span style="font-family:sans-serif;font-size:0.8rem;color:#17130f;">${label}</span>`);
+  }
+
+  document.getElementById(detailsId).addEventListener("toggle", function(e) {
+    if (!e.target.open || initialized) return;
+    initialized = true;
+    if (window.L) {
+      initLeaflet();
+    } else {
+      const script = document.createElement("script");
+      script.src = "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js";
+      script.onload = initLeaflet;
+      document.head.appendChild(script);
+    }
+  });
+</script>

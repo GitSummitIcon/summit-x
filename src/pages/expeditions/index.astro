@@ -1,0 +1,46 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import NavSummitX from "../../components/NavSummitX.astro";
+import Footer from "../../components/Footer.astro";
+import { sanityClient } from "../../lib/sanity";
+
+const expeditions = await sanityClient.fetch(`
+  *[_type == "expedition"] | order(name asc) {
+    _id, name, slug, season, duration,
+    "cardUrl": gallery[0].asset->url + "?w=800&auto=format",
+    "destination": destination->name
+  }
+`);
+---
+
+<BaseLayout title="Expeditions — Summit X" description="Remote lodges and wilderness expeditions curated by Summit X.">
+  <NavSummitX />
+  <main id="main">
+    <div class="page-hero container">
+      <p class="label-eyebrow reveal">Collection</p>
+      <h1 class="display reveal reveal-delay-1">Expeditions</h1>
+    </div>
+    <div class="container">
+      {expeditions.length === 0 ? (
+        <p style="padding-block: 4rem; color: var(--muted-foreground);">Expeditions coming soon.</p>
+      ) : (
+        <div class="card-grid">
+          {expeditions.map((exp: any) => (
+            <a href={`/expeditions/${exp.slug.current}`} class="card reveal">
+              <div class="card-media image-frame">
+                {exp.cardUrl && <img src={exp.cardUrl} alt={exp.name} loading="lazy" />}
+              </div>
+              <div class="card-body">
+                <p class="label-eyebrow">
+                  {[exp.season, exp.duration, exp.destination].filter(Boolean).join(" · ")}
+                </p>
+                <h2 class="card-title display">{exp.name}</h2>
+              </div>
+            </a>
+          ))}
+        </div>
+      )}
+    </div>
+  </main>
+  <Footer />
+</BaseLayout>

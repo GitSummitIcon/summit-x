@@ -1,0 +1,117 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import NavSummitX from "../../components/NavSummitX.astro";
+import Footer from "../../components/Footer.astro";
+import PortableText from "../../components/PortableText.astro";
+import EnquiryCTA from "../../components/EnquiryCTA.astro";
+import LightboxGallery from "../../components/LightboxGallery.astro";
+import { sanityClient } from "../../lib/sanity";
+
+export async function getStaticPaths() {
+  const items = await sanityClient.fetch(`*[_type == "heliSki"]{ "slug": slug.current }`);
+  return items.map((item: { slug: string }) => ({ params: { slug: item.slug } }));
+}
+
+const { slug } = Astro.params;
+
+const heliSki = await sanityClient.fetch(`
+  *[_type == "heliSki" && slug.current == $slug][0] {
+    name, terrainType, season, groupSize, description,
+    "heroUrl": gallery[0].asset->url + "?w=1600&auto=format",
+    "gallery": gallery[]{ "url": asset->url + "?w=1200&auto=format" },
+    "destination": destination->{ name, "slug": slug.current }
+  }
+`, { slug });
+
+if (!heliSki) return Astro.redirect("/heli-ski");
+
+const descParts = [
+  heliSki.destination?.name && `in ${heliSki.destination.name}`,
+  heliSki.terrainType && `${heliSki.terrainType} terrain`,
+  heliSki.season && `${heliSki.season} season`,
+].filter(Boolean).join(", ");
+const description = `${heliSki.name}${descParts ? ` — ${descParts}` : ""}. Exclusive heli-ski experience curated by Summit X.`;
+
+const structuredData = {
+  "@context": "https://schema.org",
+  "@type": "TouristTrip",
+  name: heliSki.name,
+  description,
+  url: `https://summitx.iconprivatecollection.com/heli-ski/${slug}`,
+  ...(heliSki.heroUrl && { image: heliSki.heroUrl }),
+  ...(heliSki.destination && { itinerary: { "@type": "Place", name: heliSki.destination.name } }),
+  touristType: "Ski enthusiasts",
+  provider: {
+    "@type": "TravelAgency",
+    name: "Summit X",
+    email: "summitx@iconprivatecollection.com",
+    parentOrganization: { "@type": "Organization", name: "Icon Private Collection" },
+  },
+};
+---
+
+<BaseLayout
+  title={`${heliSki.name} — Summit X`}
+  description={description}
+  image={heliSki.heroUrl ?? undefined}
+  structuredData={structuredData}
+>
+  <NavSummitX />
+  <main id="main">
+    {heliSki.heroUrl && (
+      <div class="detail-hero">
+        <img src={heliSki.heroUrl} alt={heliSki.name} loading="eager" />
+        <div class="overlay" style="background: var(--grad-veil);"></div>
+        {heliSki.gallery?.length > 1 && (
+          <button class="hero-photo-count" data-lb-open="0">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            {heliSki.gallery.length} photos
+          </button>
+        )}
+      </div>
+    )}
+
+    <div class="detail-header container">
+      {heliSki.destination && (
+        <p class="label-eyebrow reveal">
+          <a href={`/destinations/${heliSki.destination.slug}`}>{heliSki.destination.name}</a>
+        </p>
+      )}
+      <h1 class="display reveal reveal-delay-1">{heliSki.name}</h1>
+    </div>
+
+    <div class="container detail-body">
+      <div class="detail-description">
+        {heliSki.description && <PortableText blocks={heliSki.description} />}
+      </div>
+      <aside class="detail-aside">
+        <div class="detail-specs">
+          <p class="label-eyebrow" style="margin-bottom: 0.5rem;">At a glance</p>
+          {heliSki.terrainType && (
+            <div class="detail-spec-row">
+              <span class="label-eyebrow">Terrain</span>
+              <span>{heliSki.terrainType}</span>
+            </div>
+          )}
+          {heliSki.season && (
+            <div class="detail-spec-row">
+              <span class="label-eyebrow">Season</span>
+              <span>{heliSki.season}</span>
+            </div>
+          )}
+          {heliSki.groupSize && (
+            <div class="detail-spec-row">
+              <span class="label-eyebrow">Group size</span>
+              <span>{heliSki.groupSize}</span>
+            </div>
+          )}
+        </div>
+      </aside>
+    </div>
+
+    <LightboxGallery images={heliSki.gallery ?? []} />
+
+    <EnquiryCTA propertyName={heliSki.name} />
+  </main>
+  <Footer />
+</BaseLayout>

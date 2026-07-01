@@ -1,0 +1,135 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import NavSummitX from "../../components/NavSummitX.astro";
+import Footer from "../../components/Footer.astro";
+import PortableText from "../../components/PortableText.astro";
+import EnquiryCTA from "../../components/EnquiryCTA.astro";
+import LightboxGallery from "../../components/LightboxGallery.astro";
+import PropertyMap from "../../components/PropertyMap.astro";
+import { sanityClient } from "../../lib/sanity";
+
+export async function getStaticPaths() {
+  const items = await sanityClient.fetch(`*[_type == "chalet"]{ "slug": slug.current }`);
+  return items.map((item: { slug: string }) => ({ params: { slug: item.slug } }));
+}
+
+const { slug } = Astro.params;
+
+const chalet = await sanityClient.fetch(`
+  *[_type == "chalet" && slug.current == $slug][0] {
+    name, bedrooms, sleeps, priceOnRequest, priceRange, amenities, description,
+    "location": location{ lat, lng },
+    "heroUrl": gallery[0].asset->url + "?w=1600&auto=format",
+    "gallery": gallery[]{ "url": asset->url + "?w=1200&auto=format" },
+    "destination": destination->{ name, "slug": slug.current }
+  }
+`, { slug });
+
+if (!chalet) return Astro.redirect("/chalets");
+
+const priceDisplay = chalet.priceOnRequest || !chalet.priceRange?.min
+  ? "Price on request"
+  : `${chalet.priceRange.currency ?? "GBP"} ${chalet.priceRange.min.toLocaleString()}–${chalet.priceRange.max?.toLocaleString() ?? ""}`;
+
+const descParts = [
+  chalet.destination?.name && `in ${chalet.destination.name}`,
+  chalet.bedrooms && `${chalet.bedrooms} bedrooms`,
+  chalet.sleeps && `sleeps ${chalet.sleeps}`,
+].filter(Boolean).join(", ");
+const description = `${chalet.name}${descParts ? ` — ${descParts}` : ""}. A luxury alpine chalet curated by Summit X.`;
+
+const structuredData = {
+  "@context": "https://schema.org",
+  "@type": "LodgingBusiness",
+  name: chalet.name,
+  description,
+  url: `https://summitx.iconprivatecollection.com/chalets/${slug}`,
+  ...(chalet.heroUrl && { image: chalet.heroUrl }),
+  ...(chalet.destination && { location: { "@type": "Place", name: chalet.destination.name } }),
+  numberOfRooms: chalet.bedrooms,
+  ...(chalet.amenities?.length && {
+    amenityFeature: chalet.amenities.map((a: string) => ({ "@type": "LocationFeatureSpecification", name: a, value: true })),
+  }),
+  brand: { "@type": "Brand", name: "Summit X" },
+  parentOrganization: { "@type": "Organization", name: "Icon Private Collection" },
+  email: "summitx@iconprivatecollection.com",
+};
+---
+
+<BaseLayout
+  title={`${chalet.name} — Summit X`}
+  description={description}
+  image={chalet.heroUrl ?? undefined}
+  structuredData={structuredData}
+>
+  <NavSummitX />
+  <main id="main">
+    {chalet.heroUrl && (
+      <div class="detail-hero">
+        <img src={chalet.heroUrl} alt={chalet.name} loading="eager" />
+        <div class="overlay" style="background: var(--grad-veil);"></div>
+        {chalet.gallery?.length > 1 && (
+          <button class="hero-photo-count" data-lb-open="0">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            {chalet.gallery.length} photos
+          </button>
+        )}
+      </div>
+    )}
+
+    <div class="detail-header container">
+      {chalet.destination && (
+        <p class="label-eyebrow reveal">
+          <a href={`/destinations/${chalet.destination.slug}`}>{chalet.destination.name}</a>
+        </p>
+      )}
+      <h1 class="display reveal reveal-delay-1">{chalet.name}</h1>
+    </div>
+
+    <div class="container detail-body">
+      <div class="detail-description">
+        {chalet.description && <PortableText blocks={chalet.description} />}
+      </div>
+      <aside class="detail-aside">
+        <div class="detail-specs">
+          <p class="label-eyebrow" style="margin-bottom: 0.5rem;">At a glance</p>
+          {chalet.bedrooms && (
+            <div class="detail-spec-row">
+              <span class="label-eyebrow">Bedrooms</span>
+              <span>{chalet.bedrooms}</span>
+            </div>
+          )}
+          {chalet.sleeps && (
+            <div class="detail-spec-row">
+              <span class="label-eyebrow">Sleeps</span>
+              <span>{chalet.sleeps}</span>
+            </div>
+          )}
+          <div class="detail-spec-row">
+            <span class="label-eyebrow">Price</span>
+            <span>{priceDisplay}</span>
+          </div>
+          {chalet.amenities?.length > 0 && (
+            <div style="margin-top: 1.25rem;">
+              <p class="label-eyebrow" style="margin-bottom: 0.75rem;">Amenities</p>
+              <ul style="margin: 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                {chalet.amenities.map((a: string) => (
+                  <li style="border: 1px solid var(--border); padding: 0.3rem 0.65rem; font-size: 0.8rem; color: var(--muted-foreground);">{a}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+      </aside>
+    </div>
+
+    {chalet.location?.lat && chalet.location?.lng && (
+      <PropertyMap lat={chalet.location.lat} lng={chalet.location.lng} label={chalet.name} />
+    )}
+
+    <LightboxGallery images={chalet.gallery ?? []} />
+
+    <EnquiryCTA propertyName={chalet.name} />
+  </main>
+  <Footer />
+</BaseLayout>
