@@ -742,6 +742,7 @@ a:hover {
 .reservation {
   position: relative;
   overflow: hidden;
+  scroll-margin-top: 5rem;
 }
 
 .reservation-bg {
