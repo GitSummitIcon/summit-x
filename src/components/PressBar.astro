@@ -1,0 +1,45 @@
+---
+type Logo = {
+  publication: string;
+  logoLightUrl: string | null;
+  articleUrl: string | null;
+};
+
+type Props = { logos: Logo[] };
+const { logos } = Astro.props;
+---
+
+{logos.length > 0 && (
+  <div class="press-bar">
+    <div class="hairline"></div>
+    <div class="container press-bar-inner">
+      <p class="press-bar-label">As seen in</p>
+      <div class="press-logo-row">
+        {logos.map((logo) => (
+          logo.articleUrl ? (
+            <a
+              href={logo.articleUrl}
+              class="press-logo-wrap"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={logo.publication}
+            >
+              {logo.logoLightUrl
+                ? <img src={logo.logoLightUrl} alt={logo.publication} class="press-logo-img" height="22" loading="lazy" />
+                : <span class="press-logo-text">{logo.publication}</span>
+              }
+            </a>
+          ) : (
+            <span class="press-logo-wrap" aria-label={logo.publication}>
+              {logo.logoLightUrl
+                ? <img src={logo.logoLightUrl} alt={logo.publication} class="press-logo-img" height="22" loading="lazy" />
+                : <span class="press-logo-text">{logo.publication}</span>
+              }
+            </span>
+          )
+        ))}
+      </div>
+    </div>
+    <div class="hairline"></div>
+  </div>
+)}

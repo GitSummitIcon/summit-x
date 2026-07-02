@@ -2,6 +2,7 @@
 import BaseLayout from "../layouts/BaseLayout.astro";
 import NavSummitX from "../components/NavSummitX.astro";
 import Footer from "../components/Footer.astro";
+import PressBar from "../components/PressBar.astro";
 import { siteConfig } from "../config/site";
 import { sanityClient } from "../lib/sanity";
 
@@ -14,7 +15,11 @@ const [settings, destinations, editArticles, expeditions, heliSkis] = await Prom
         "cardUrl": gallery[0].asset->url + "?w=1200&auto=format",
         "destination": destination->name
       },
-      "featuredDestination": featuredDestination->{ name, slug, region }
+      "featuredDestination": featuredDestination->{ name, slug, region },
+      "pressLogos": pressLogos[]{
+        publication, articleUrl,
+        "logoLightUrl": logoLight.asset->url + "?w=300&auto=format"
+      }
     }
   `),
   sanityClient.fetch(`
@@ -96,6 +101,8 @@ const structuredData = {
         </div>
       </div>
     </section>
+
+    <PressBar logos={settings?.pressLogos ?? []} />
 
     <!-- Featured chalet -->
     {settings?.featuredChalet && (

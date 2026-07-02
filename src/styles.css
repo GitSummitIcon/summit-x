@@ -1399,6 +1399,64 @@ textarea {
   border-color: rgb(251 240 220 / 0.7);
 }
 
+/* ─── Press bar ─────────────────────────────────────────────────────────── */
+
+.press-bar {
+  padding-block: 0;
+}
+
+.press-bar-inner {
+  display: flex;
+  align-items: center;
+  gap: clamp(1.5rem, 3vw, 3rem);
+  padding-block: clamp(1.25rem, 2vw, 1.75rem);
+  flex-wrap: wrap;
+}
+
+.press-bar-label {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--muted-foreground);
+  margin: 0;
+  flex-shrink: 0;
+}
+
+.press-logo-row {
+  display: flex;
+  align-items: center;
+  gap: clamp(1.5rem, 3vw, 3rem);
+  flex-wrap: wrap;
+}
+
+.press-logo-wrap {
+  display: inline-flex;
+  align-items: center;
+  opacity: 0.55;
+  transition: opacity 200ms ease;
+}
+
+a.press-logo-wrap:hover {
+  opacity: 1;
+  color: inherit;
+}
+
+.press-logo-img {
+  height: 22px;
+  width: auto;
+  display: block;
+  filter: brightness(0) invert(1);
+}
+
+.press-logo-text {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--muted-foreground);
+}
+
 /* ─── Property map ───────────────────────────────────────────────────────── */
 
 .map-section {

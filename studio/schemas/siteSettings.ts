@@ -26,6 +26,25 @@ export const siteSettings = defineType({
       to: [{ type: "destination" }],
       description: "Optional — highlights one destination on the homepage hero.",
     }),
+    defineField({
+      name: "pressLogos",
+      title: "Press Logos",
+      type: "array",
+      description: "5–8 press logos shown in the 'As Seen In' bar on the homepage. Upload light (reversed) variants for use on the dark background.",
+      of: [
+        {
+          type: "object",
+          fields: [
+            defineField({ name: "publication", title: "Publication", type: "string", validation: (r) => r.required() }),
+            defineField({ name: "logoLight", title: "Logo — Light (for dark backgrounds)", type: "image", options: { hotspot: false } }),
+            defineField({ name: "logoDark", title: "Logo — Dark (for light backgrounds)", type: "image", options: { hotspot: false } }),
+            defineField({ name: "articleUrl", title: "Article URL (optional)", type: "url" }),
+          ],
+          preview: { select: { title: "publication" } },
+        },
+      ],
+      validation: (r) => r.max(8),
+    }),
   ],
   preview: {
     prepare: () => ({ title: "Site Settings" }),

@@ -3,6 +3,8 @@ import "../styles.css";
 import SeoHead from "../components/SeoHead.astro";
 import { siteConfig } from "../config/site";
 
+const gaId = import.meta.env.PUBLIC_GA_MEASUREMENT_ID;
+
 type Props = {
   title?: string;
   description?: string;
@@ -26,6 +28,17 @@ const { title, description, image, structuredData, enableReveal = siteConfig.eff
       </script>
     )}
     <SeoHead title={title} description={description} image={image} structuredData={structuredData} />
+    {gaId && (
+      <>
+        <script async src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`}></script>
+        <script is:inline define:vars={{ gaId }}>
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', gaId);
+        </script>
+      </>
+    )}
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to content</a>
