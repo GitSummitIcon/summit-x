@@ -1,9 +1,10 @@
 ---
 type Props = {
   images: { url: string }[];
+  skipFirst?: boolean;
 };
-const { images } = Astro.props;
-const thumbs = images.slice(1);
+const { images, skipFirst = true } = Astro.props;
+const thumbs = skipFirst ? images.slice(1) : images;
 ---
 
 {thumbs.length > 0 && (

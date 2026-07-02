@@ -17,7 +17,7 @@ const { slug } = Astro.params;
 
 const chalet = await sanityClient.fetch(`
   *[_type == "chalet" && slug.current == $slug][0] {
-    name, bedrooms, sleeps, priceOnRequest, priceRange, amenities, description,
+    name, bedrooms, sleeps, priceOnRequest, priceRange, amenities, includedServices, onRequest, description,
     "location": location{ lat, lng },
     "heroUrl": gallery[0].asset->url + "?w=1600&auto=format",
     "gallery": gallery[]{ "url": asset->url + "?w=1200&auto=format" },
@@ -109,19 +109,48 @@ const structuredData = {
             <span class="label-eyebrow">Price</span>
             <span>{priceDisplay}</span>
           </div>
-          {chalet.amenities?.length > 0 && (
-            <div style="margin-top: 1.25rem;">
-              <p class="label-eyebrow" style="margin-bottom: 0.75rem;">Amenities</p>
-              <ul style="margin: 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 0.5rem;">
-                {chalet.amenities.map((a: string) => (
-                  <li style="border: 1px solid var(--border); padding: 0.3rem 0.65rem; font-size: 0.8rem; color: var(--muted-foreground);">{a}</li>
-                ))}
-              </ul>
-            </div>
-          )}
         </div>
       </aside>
     </div>
+
+    {chalet.amenities?.length > 0 && (
+      <div class="container">
+        <div class="detail-aside" style="grid-column: 9 / span 4;">
+          <div class="detail-tag-section">
+            <p class="detail-tag-section-label">Amenities</p>
+            <ul class="tag-list">
+              {chalet.amenities.map((a: string) => <li class="tag">{a}</li>)}
+            </ul>
+          </div>
+        </div>
+      </div>
+    )}
+
+    {chalet.includedServices?.length > 0 && (
+      <div class="container">
+        <div class="detail-aside" style="grid-column: 9 / span 4;">
+          <div class="detail-tag-section">
+            <p class="detail-tag-section-label">Included Services</p>
+            <ul class="tag-list">
+              {chalet.includedServices.map((s: string) => <li class="tag">{s}</li>)}
+            </ul>
+          </div>
+        </div>
+      </div>
+    )}
+
+    {chalet.onRequest?.length > 0 && (
+      <div class="container">
+        <div class="detail-aside" style="grid-column: 9 / span 4;">
+          <div class="detail-tag-section">
+            <p class="detail-tag-section-label">On Request</p>
+            <ul class="tag-list">
+              {chalet.onRequest.map((r: string) => <li class="tag">{r}</li>)}
+            </ul>
+          </div>
+        </div>
+      </div>
+    )}
 
     {chalet.location?.lat && chalet.location?.lng && (
       <PropertyMap lat={chalet.location.lat} lng={chalet.location.lng} label={chalet.name} />

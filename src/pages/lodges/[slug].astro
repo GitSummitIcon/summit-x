@@ -17,7 +17,7 @@ const { slug } = Astro.params;
 
 const lodge = await sanityClient.fetch(`
   *[_type == "lodge" && slug.current == $slug][0] {
-    name, bedrooms, sleeps, priceOnRequest, priceRange, style, amenities, description,
+    name, bedrooms, sleeps, priceOnRequest, priceRange, style, amenities, includedServices, onRequest, description,
     "location": location{ lat, lng },
     "heroUrl": gallery[0].asset->url + "?w=1600&auto=format",
     "gallery": gallery[]{ "url": asset->url + "?w=1200&auto=format" },
@@ -114,19 +114,48 @@ const structuredData = {
             <span class="label-eyebrow">Price</span>
             <span>{priceDisplay}</span>
           </div>
-          {lodge.amenities?.length > 0 && (
-            <div style="margin-top: 1.25rem;">
-              <p class="label-eyebrow" style="margin-bottom: 0.75rem;">Amenities</p>
-              <ul style="margin: 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 0.5rem;">
-                {lodge.amenities.map((a: string) => (
-                  <li style="border: 1px solid var(--border); padding: 0.3rem 0.65rem; font-size: 0.8rem; color: var(--muted-foreground);">{a}</li>
-                ))}
-              </ul>
-            </div>
-          )}
         </div>
       </aside>
     </div>
+
+    {lodge.amenities?.length > 0 && (
+      <div class="container">
+        <div class="detail-aside" style="grid-column: 9 / span 4;">
+          <div class="detail-tag-section">
+            <p class="detail-tag-section-label">Amenities</p>
+            <ul class="tag-list">
+              {lodge.amenities.map((a: string) => <li class="tag">{a}</li>)}
+            </ul>
+          </div>
+        </div>
+      </div>
+    )}
+
+    {lodge.includedServices?.length > 0 && (
+      <div class="container">
+        <div class="detail-aside" style="grid-column: 9 / span 4;">
+          <div class="detail-tag-section">
+            <p class="detail-tag-section-label">Included Services</p>
+            <ul class="tag-list">
+              {lodge.includedServices.map((s: string) => <li class="tag">{s}</li>)}
+            </ul>
+          </div>
+        </div>
+      </div>
+    )}
+
+    {lodge.onRequest?.length > 0 && (
+      <div class="container">
+        <div class="detail-aside" style="grid-column: 9 / span 4;">
+          <div class="detail-tag-section">
+            <p class="detail-tag-section-label">On Request</p>
+            <ul class="tag-list">
+              {lodge.onRequest.map((r: string) => <li class="tag">{r}</li>)}
+            </ul>
+          </div>
+        </div>
+      </div>
+    )}
 
     {lodge.location?.lat && lodge.location?.lng && (
       <PropertyMap lat={lodge.location.lat} lng={lodge.location.lng} label={lodge.name} />

@@ -35,6 +35,8 @@ export const destination = defineType({
       title: "Gallery",
       type: "array",
       of: [{ type: "image", options: { hotspot: true } }],
+      options: { layout: "grid" },
+      description: "Select multiple images at once by holding Cmd (Mac) or Ctrl (Windows) in the file picker.",
     }),
     defineField({
       name: "intro",

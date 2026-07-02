@@ -16,7 +16,6 @@ export const siteConfig = {
     { label: "The Edit", href: "/the-edit" },
   ],
   social: [
-    { label: "Instagram", href: "https://www.instagram.com/" },
     { label: "The Edit", href: "/the-edit" },
   ],
   effects: {

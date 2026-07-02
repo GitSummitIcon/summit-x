@@ -8,7 +8,7 @@ const year = new Date().getFullYear();
   <div class="container footer-grid">
     <div class="footer-brand">
       <strong>{siteConfig.name.toUpperCase()}</strong>
-      <p>{siteConfig.tagline}</p>
+      <p>Alpine elegance and adventure.<br />Untamed. Impeccable.</p>
     </div>
 
     <div class="footer-col">
@@ -26,16 +26,14 @@ const year = new Date().getFullYear();
       <p class="label-eyebrow">Journal</p>
       <ul>
         <li><a href="/the-edit">The Edit</a></li>
-        <li><a href={`mailto:${siteConfig.email}`}>{siteConfig.email}</a></li>
       </ul>
     </div>
 
     <div class="footer-col">
-      <p class="label-eyebrow">Elsewhere</p>
+      <p class="label-eyebrow">Contact</p>
       <ul>
-        {siteConfig.social.map((item) => (
-          <li><a href={item.href} target="_blank" rel="noreferrer">{item.label}</a></li>
-        ))}
+        <li><a href={`mailto:${siteConfig.email}`}>{siteConfig.email}</a></li>
+        <li style="color: rgb(240 231 216 / 0.6); line-height: 1.6; margin-top: 0.5rem;">36-38 Cornhill<br />London EC3V 3NG<br />United Kingdom</li>
       </ul>
     </div>
 

@@ -1,4 +1,19 @@
 ---
+import { sanityClient } from "../lib/sanity";
+
+const destinations = await sanityClient.fetch(`
+  *[_type == "destination"] | order(region asc, name asc) {
+    name, region, "slug": slug.current
+  }
+`);
+
+const byRegion: Record<string, { name: string; slug: string }[]> = {};
+for (const d of destinations) {
+  const r = d.region ?? "Other";
+  if (!byRegion[r]) byRegion[r] = [];
+  byRegion[r].push(d);
+}
+const regions = Object.entries(byRegion);
 ---
 
 <header class="site-header">
@@ -7,7 +22,24 @@
       <span>SUMMIT X</span>
     </a>
     <nav class="nav-links" aria-label="Primary navigation">
-      <a href="/destinations">Destinations</a>
+
+      <div class="nav-dropdown-wrap">
+        <a href="/destinations">Destinations</a>
+        {regions.length > 0 && (
+          <div class="nav-dropdown">
+            {regions.map(([region, dests]) => (
+              <div class="nav-dropdown-group">
+                <p class="nav-dropdown-region">{region}</p>
+                {dests.map((d) => (
+                  <a href={`/destinations/${d.slug}`} class="nav-dropdown-item">{d.name}</a>
+                ))}
+              </div>
+            ))}
+            <a href="/destinations" class="nav-dropdown-all">All destinations &rarr;</a>
+          </div>
+        )}
+      </div>
+
       <a href="/chalets">Chalets</a>
       <a href="/expeditions">Expeditions</a>
       <a href="/heli-ski">Heli-Ski</a>
@@ -18,10 +50,28 @@
         Enquire
       </a>
     </nav>
+
     <details class="mobile-nav">
       <summary class="mobile-nav__toggle">Menu</summary>
       <nav class="mobile-nav__panel" aria-label="Mobile navigation">
-        <a href="/destinations">Destinations</a>
+        {regions.length > 0 ? (
+          <details class="mobile-dest-details">
+            <summary>Destinations <span aria-hidden="true">+</span></summary>
+            <div class="mobile-dest-panel">
+              {regions.map(([region, dests]) => (
+                <div>
+                  <p class="mobile-dest-region">{region}</p>
+                  {dests.map((d) => (
+                    <a href={`/destinations/${d.slug}`} class="mobile-dest-link">{d.name}</a>
+                  ))}
+                </div>
+              ))}
+              <a href="/destinations" class="mobile-dest-link mobile-dest-link--all">All destinations</a>
+            </div>
+          </details>
+        ) : (
+          <a href="/destinations">Destinations</a>
+        )}
         <a href="/chalets">Chalets</a>
         <a href="/expeditions">Expeditions</a>
         <a href="/heli-ski">Heli-Ski</a>
