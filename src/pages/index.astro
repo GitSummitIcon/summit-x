@@ -90,7 +90,7 @@ const structuredData = {
             <p>Alpine elegance and adventure.<br />Untamed. Impeccable.</p>
             <div class="hero-actions">
               <a class="button-link" href="/destinations">Explore destinations <span aria-hidden="true">-&gt;</span></a>
-              <a href={`mailto:${siteConfig.email}`} class="hero-enquire-link">Enquire</a>
+              <a href="#enquire" class="hero-enquire-link">Enquire</a>
             </div>
           </div>
         </div>
@@ -248,7 +248,7 @@ const structuredData = {
     )}
 
     <!-- Enquire -->
-    <section class="section reservation" aria-labelledby="enquire-heading">
+    <section id="enquire" class="section reservation" aria-labelledby="enquire-heading">
       <div class="overlay" style="background: var(--grad-vignette);"></div>
       <div class="container section-grid" style="position: relative; z-index: 1;">
         <div class="reservation-copy">
@@ -265,6 +265,7 @@ const structuredData = {
         <div class="reservation-form reveal">
           <p class="label-eyebrow">Send an enquiry</p>
           <form id="enquiry-form" novalidate>
+            <input type="hidden" id="enq-source" name="source" value="" />
             <div class="form-grid">
               <div class="form-field--full">
                 <label class="label-eyebrow" for="enq-name">Full name <span aria-hidden="true">*</span></label>
@@ -311,6 +312,17 @@ const structuredData = {
   if (form) {
     const submitBtn = document.getElementById("enquiry-submit") as HTMLButtonElement;
     const status = document.getElementById("enquiry-status") as HTMLParagraphElement;
+    const sourceField = document.getElementById("enq-source") as HTMLInputElement;
+    const messageField = document.getElementById("enq-message") as HTMLTextAreaElement;
+
+    // Read URL params — set source, pre-fill property name if present
+    const params = new URLSearchParams(window.location.search);
+    const fromParam = params.get("from");
+    const propertyParam = params.get("property");
+    if (fromParam) sourceField.value = fromParam;
+    if (propertyParam && !messageField.value) {
+      messageField.value = `I'm interested in ${propertyParam}.`;
+    }
 
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
@@ -333,7 +345,8 @@ const structuredData = {
         email,
         phone: (document.getElementById("enq-phone") as HTMLInputElement).value.trim(),
         interest: (document.getElementById("enq-interest") as HTMLSelectElement).value,
-        message: (document.getElementById("enq-message") as HTMLTextAreaElement).value.trim(),
+        message: messageField.value.trim(),
+        source: sourceField.value || window.location.pathname,
       };
 
       try {

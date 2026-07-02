@@ -8,7 +8,7 @@ export default async function handler(req: any, res: any) {
     return;
   }
 
-  const { name, email, phone, interest, message } = req.body ?? {};
+  const { name, email, phone, interest, message, source } = req.body ?? {};
 
   if (!name || !email) {
     res.status(400).json({ error: "Name and email are required" });
@@ -24,6 +24,7 @@ export default async function handler(req: any, res: any) {
       message
         ? ["Message", String(message).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/\n/g, "<br>")]
         : null,
+      source ? ["Enquired from", source] : null,
     ] as ([string, string] | null)[]
   )
     .filter((r): r is [string, string] => r !== null)

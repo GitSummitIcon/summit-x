@@ -1,6 +1,7 @@
 ---
 const { propertyName } = Astro.props as { propertyName: string };
-const subject = encodeURIComponent(`Enquiry: ${propertyName}`);
+const from = encodeURIComponent(Astro.url.pathname);
+const property = encodeURIComponent(propertyName);
 ---
 
 <section class="enquiry-section surface-section">
@@ -15,8 +16,8 @@ const subject = encodeURIComponent(`Enquiry: ${propertyName}`);
         Our team will be in touch within 24 hours to discuss availability, pricing, and everything you need to plan your stay.
       </p>
     </div>
-    <a class="button-link" href={`mailto:summitx@iconprivatecollection.com?subject=${subject}`}>
-      Make an enquiry <span aria-hidden="true">-&gt;</span>
+    <a class="button-link" href={`/#enquire?from=${from}&property=${property}`}>
+      Make an enquiry <span aria-hidden="true">&rarr;</span>
     </a>
   </div>
 </section>
