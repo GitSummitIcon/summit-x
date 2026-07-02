@@ -57,7 +57,7 @@ const regions = Object.entries(byRegion);
       </a>
     </nav>
 
-    <details class="mobile-nav">
+    <details class="mobile-nav" id="mobile-nav">
       <summary class="mobile-nav__toggle">Menu</summary>
       <nav class="mobile-nav__panel" aria-label="Mobile navigation">
         {regions.length > 0 ? (
@@ -211,6 +211,15 @@ const regions = Object.entries(byRegion);
       )
       .join("");
   }
+
+  // Close mobile nav when any link inside it is clicked
+  const mobileNav = document.getElementById("mobile-nav") as HTMLDetailsElement | null;
+  document.querySelector(".mobile-nav__panel")?.addEventListener("click", (e) => {
+    const target = e.target as HTMLElement;
+    if (target.closest("a") && mobileNav) {
+      mobileNav.open = false;
+    }
+  });
 
   openBtn?.addEventListener("click", openSearch);
   openBtnMobile?.addEventListener("click", openSearch);
