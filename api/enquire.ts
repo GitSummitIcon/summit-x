@@ -39,7 +39,7 @@ export default async function handler(req: any, res: any) {
 
   try {
     await resend.emails.send({
-      from: "Summit X <noreply@iconprivatecollection.com>",
+      from: "Summit X <noreply@summitx.iconprivatecollection.com>",
       to: ["summitx@iconprivatecollection.com"],
       replyTo: email,
       subject: `Enquiry from ${name} — Summit X`,
