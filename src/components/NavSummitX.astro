@@ -45,6 +45,12 @@ const regions = Object.entries(byRegion);
       <a href="/heli-ski">Heli-Ski</a>
       <a href="/lodges">Lodges</a>
       <a href="/the-edit">The Edit</a>
+      <button class="search-icon-btn" id="search-open" aria-label="Search">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+          <circle cx="11" cy="11" r="7"/>
+          <line x1="16.5" y1="16.5" x2="22" y2="22"/>
+        </svg>
+      </button>
       <a class="button-link button-link--outline" href="mailto:summitx@iconprivatecollection.com">
         <span class="ember-dot" aria-hidden="true"></span>
         Enquire
@@ -77,8 +83,147 @@ const regions = Object.entries(byRegion);
         <a href="/heli-ski">Heli-Ski</a>
         <a href="/lodges">Lodges</a>
         <a href="/the-edit">The Edit</a>
+        <button class="search-icon-btn" id="search-open-mobile" aria-label="Search" style="padding: 0.85rem; justify-content: flex-start; gap: 0.6rem; width: 100%; font-size: 0.9rem; color: var(--muted-foreground);">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+            <circle cx="11" cy="11" r="7"/>
+            <line x1="16.5" y1="16.5" x2="22" y2="22"/>
+          </svg>
+          Search
+        </button>
         <a class="button-link" href="mailto:summitx@iconprivatecollection.com">Enquire</a>
       </nav>
     </details>
   </div>
 </header>
+
+<!-- Search overlay -->
+<div id="search-overlay" class="search-overlay" role="dialog" aria-modal="true" aria-label="Search" hidden>
+  <button class="search-backdrop" id="search-backdrop" aria-hidden="true" tabindex="-1"></button>
+  <div class="search-modal">
+    <div class="search-input-row">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true" style="flex-shrink:0;color:var(--muted-foreground);">
+        <circle cx="11" cy="11" r="7"/>
+        <line x1="16.5" y1="16.5" x2="22" y2="22"/>
+      </svg>
+      <input
+        id="search-input"
+        type="search"
+        class="search-input"
+        placeholder="Search chalets, destinations, expeditions…"
+        autocomplete="off"
+        spellcheck="false"
+        aria-label="Search"
+      />
+      <button id="search-close" class="search-close" aria-label="Close search">&#215;</button>
+    </div>
+    <ul id="search-results" class="search-results" role="listbox" aria-label="Search results"></ul>
+    <p id="search-empty" class="search-empty" hidden>No results found.</p>
+  </div>
+</div>
+
+<script>
+  import Fuse from "fuse.js";
+
+  type SearchItem = {
+    type: string;
+    title: string;
+    subtitle: string;
+    href: string;
+    thumb: string | null;
+  };
+
+  let fuseInstance: Fuse<SearchItem> | null = null;
+  let indexLoading = false;
+
+  const overlay = document.getElementById("search-overlay") as HTMLDivElement;
+  const searchInput = document.getElementById("search-input") as HTMLInputElement;
+  const resultsList = document.getElementById("search-results") as HTMLUListElement;
+  const emptyMsg = document.getElementById("search-empty") as HTMLParagraphElement;
+  const openBtn = document.getElementById("search-open");
+  const openBtnMobile = document.getElementById("search-open-mobile");
+  const closeBtn = document.getElementById("search-close");
+  const backdrop = document.getElementById("search-backdrop");
+
+  async function loadIndex() {
+    if (fuseInstance || indexLoading) return;
+    indexLoading = true;
+    try {
+      const data: SearchItem[] = await fetch("/search-index.json").then((r) => r.json());
+      fuseInstance = new Fuse(data, {
+        keys: ["title", "subtitle"],
+        threshold: 0.35,
+        minMatchCharLength: 2,
+        includeScore: false,
+      });
+      if (searchInput.value.trim()) runSearch(searchInput.value.trim());
+    } catch {
+      // silently fail — search won't work
+    }
+  }
+
+  function openSearch() {
+    overlay.hidden = false;
+    document.body.style.overflow = "hidden";
+    searchInput.focus();
+    loadIndex();
+  }
+
+  function closeSearch() {
+    overlay.hidden = true;
+    document.body.style.overflow = "";
+    searchInput.value = "";
+    resultsList.innerHTML = "";
+    emptyMsg.hidden = true;
+  }
+
+  function renderThumb(item: SearchItem) {
+    if (!item.thumb) return "";
+    return `<div class="search-result-thumb"><img src="${item.thumb}" alt="" loading="lazy" /></div>`;
+  }
+
+  function runSearch(q: string) {
+    if (!fuseInstance || !q) {
+      resultsList.innerHTML = "";
+      emptyMsg.hidden = true;
+      return;
+    }
+    const hits = fuseInstance.search(q, { limit: 8 });
+    if (hits.length === 0) {
+      resultsList.innerHTML = "";
+      emptyMsg.hidden = false;
+      return;
+    }
+    emptyMsg.hidden = true;
+    resultsList.innerHTML = hits
+      .map(
+        ({ item }) => `
+        <li role="option">
+          <a href="${item.href}" class="search-result-link" onclick="document.getElementById('search-overlay').hidden=true;document.body.style.overflow='';">
+            ${renderThumb(item)}
+            <div class="search-result-body">
+              <span class="search-result-type">${item.type}</span>
+              <span class="search-result-title">${item.title}</span>
+              ${item.subtitle ? `<span class="search-result-sub">${item.subtitle}</span>` : ""}
+            </div>
+          </a>
+        </li>
+      `
+      )
+      .join("");
+  }
+
+  openBtn?.addEventListener("click", openSearch);
+  openBtnMobile?.addEventListener("click", openSearch);
+  closeBtn?.addEventListener("click", closeSearch);
+  backdrop?.addEventListener("click", closeSearch);
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && !overlay.hidden) closeSearch();
+  });
+
+  let debounce: ReturnType<typeof setTimeout>;
+  searchInput.addEventListener("input", () => {
+    clearTimeout(debounce);
+    debounce = setTimeout(() => runSearch(searchInput.value.trim()), 180);
+  });
+</script>

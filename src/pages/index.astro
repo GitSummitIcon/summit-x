@@ -264,36 +264,39 @@ const structuredData = {
         </div>
         <div class="reservation-form reveal">
           <p class="label-eyebrow">Send an enquiry</p>
-          <div class="form-grid">
-            <div class="form-field--full">
-              <label class="label-eyebrow" for="name">Full name <span aria-hidden="true">*</span></label>
-              <input id="name" name="name" autocomplete="name" required />
+          <form id="enquiry-form" novalidate>
+            <div class="form-grid">
+              <div class="form-field--full">
+                <label class="label-eyebrow" for="enq-name">Full name <span aria-hidden="true">*</span></label>
+                <input id="enq-name" name="name" autocomplete="name" required />
+              </div>
+              <div>
+                <label class="label-eyebrow" for="enq-email">Email <span aria-hidden="true">*</span></label>
+                <input id="enq-email" name="email" type="email" autocomplete="email" required />
+              </div>
+              <div>
+                <label class="label-eyebrow" for="enq-phone">Phone</label>
+                <input id="enq-phone" name="phone" type="tel" autocomplete="tel" />
+              </div>
+              <div class="form-field--full">
+                <label class="label-eyebrow" for="enq-interest">I'm interested in</label>
+                <select id="enq-interest" name="interest">
+                  {["Chalets", "Heli-Ski", "Expeditions", "Lodges", "Multiple"].map((opt) => (
+                    <option value={opt}>{opt}</option>
+                  ))}
+                </select>
+              </div>
+              <div class="form-field--full">
+                <label class="label-eyebrow" for="enq-message">Tell us more</label>
+                <textarea id="enq-message" name="message" rows="3" placeholder="Destination, dates, group size, any other details."></textarea>
+              </div>
             </div>
-            <div>
-              <label class="label-eyebrow" for="email">Email <span aria-hidden="true">*</span></label>
-              <input id="email" name="email" type="email" autocomplete="email" required />
-            </div>
-            <div>
-              <label class="label-eyebrow" for="phone">Phone</label>
-              <input id="phone" name="phone" type="tel" autocomplete="tel" />
-            </div>
-            <div class="form-field--full">
-              <label class="label-eyebrow" for="interest">I'm interested in</label>
-              <select id="interest" name="interest">
-                {["Chalets", "Heli-Ski", "Expeditions", "Lodges", "Multiple"].map((opt) => (
-                  <option value={opt}>{opt}</option>
-                ))}
-              </select>
-            </div>
-            <div class="form-field--full">
-              <label class="label-eyebrow" for="message">Tell us more</label>
-              <textarea id="message" name="message" rows="3" placeholder="Destination, dates, group size, any other details."></textarea>
-            </div>
-          </div>
-          <a class="form-button" href={`mailto:${siteConfig.email}?subject=Summit X Enquiry`} style="display: inline-flex; margin-top: 1.5rem;">
-            Send enquiry <span aria-hidden="true">-&gt;</span>
-          </a>
-          <p style="color: var(--muted-foreground); font-size: 0.85rem; margin-top: 1rem;">We respond to every enquiry within 24 hours.</p>
+            <button type="submit" id="enquiry-submit" class="form-button" style="display: inline-flex; margin-top: 1.5rem;">
+              Send enquiry <span aria-hidden="true">&rarr;</span>
+            </button>
+            <p id="enquiry-status" aria-live="polite" style="font-size: 0.85rem; margin-top: 1rem; min-height: 1.4em;"></p>
+            <p style="color: var(--muted-foreground); font-size: 0.85rem; margin-top: 0.25rem;">We respond to every enquiry within 24 hours.</p>
+          </form>
         </div>
       </div>
     </section>
@@ -302,3 +305,59 @@ const structuredData = {
 
   <Footer />
 </BaseLayout>
+
+<script>
+  const form = document.getElementById("enquiry-form") as HTMLFormElement | null;
+  if (form) {
+    const submitBtn = document.getElementById("enquiry-submit") as HTMLButtonElement;
+    const status = document.getElementById("enquiry-status") as HTMLParagraphElement;
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const name = (document.getElementById("enq-name") as HTMLInputElement).value.trim();
+      const email = (document.getElementById("enq-email") as HTMLInputElement).value.trim();
+
+      if (!name || !email) {
+        status.textContent = "Please fill in your name and email.";
+        status.style.color = "var(--muted-foreground)";
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = "Sending…";
+      status.textContent = "";
+
+      const payload = {
+        name,
+        email,
+        phone: (document.getElementById("enq-phone") as HTMLInputElement).value.trim(),
+        interest: (document.getElementById("enq-interest") as HTMLSelectElement).value,
+        message: (document.getElementById("enq-message") as HTMLTextAreaElement).value.trim(),
+      };
+
+      try {
+        const res = await fetch("/api/enquire", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+
+        if (res.ok) {
+          form.reset();
+          status.textContent = "Thank you — we will be in touch within 24 hours.";
+          status.style.color = "var(--ember)";
+        } else {
+          throw new Error("server error");
+        }
+      } catch {
+        status.textContent =
+          "Something went wrong. Please email us at summitx@iconprivatecollection.com";
+        status.style.color = "var(--muted-foreground)";
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = 'Send enquiry <span aria-hidden="true">&rarr;</span>';
+      }
+    });
+  }
+</script>
