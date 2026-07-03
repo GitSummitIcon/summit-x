@@ -39,7 +39,15 @@ const year = new Date().getFullYear();
 
     <div class="footer-bottom">
       <p>&copy; {year} Icon Private Collection. All rights reserved.</p>
-      <p><span class="ember-dot" aria-hidden="true"></span> {siteConfig.name}</p>
+      <a
+        href="https://www.iconprivatecollection.com"
+        class="footer-ipc-link"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        <span class="footer-ipc-label">Part of</span>
+        <img src="/icon-private-collection.png" alt="Icon Private Collection" class="footer-ipc-logo" height="28" />
+      </a>
     </div>
   </div>
 </footer>
