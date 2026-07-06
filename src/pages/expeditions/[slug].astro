@@ -47,6 +47,15 @@ const levelColor: Record<string, string> = {
   Demanding: "#d96060",
 };
 
+function textToHtml(text: string): string {
+  const escaped = text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  return escaped
+    .split(/\n\n+/)
+    .map(para => `<p>${para.trim().replace(/\n/g, "<br>")}</p>`)
+    .join("");
+}
+const editorialHtml = expedition.editorialIntro ? textToHtml(expedition.editorialIntro) : null;
+
 const structuredData = {
   "@context": "https://schema.org",
   "@type": "TouristTrip",
@@ -100,8 +109,8 @@ const structuredData = {
 
     <div class="container detail-body">
       <div class="detail-description">
-        {expedition.editorialIntro
-          ? <p>{expedition.editorialIntro}</p>
+        {editorialHtml
+          ? <Fragment set:html={editorialHtml} />
           : expedition.description && <PortableText blocks={expedition.description} />
         }
       </div>
@@ -131,40 +140,35 @@ const structuredData = {
     </div>
 
     {(expedition.accessAndLogistics || expedition.seasonWindow || expedition.terrain || expedition.physicalRequirements?.level) && (
-      <div class="container guide-section">
-        <p class="label-eyebrow guide-section-label">Expedition Guide</p>
-        <div class="guide-grid">
-          {expedition.accessAndLogistics && (
-            <div class="guide-block">
-              <p class="label-eyebrow guide-block-label">Access & Logistics</p>
-              <p>{expedition.accessAndLogistics}</p>
-            </div>
-          )}
-          {expedition.seasonWindow && (
-            <div class="guide-block">
-              <p class="label-eyebrow guide-block-label">Season Window & What to Expect</p>
-              <p>{expedition.seasonWindow}</p>
-            </div>
-          )}
-          {expedition.terrain && (
-            <div class="guide-block">
-              <p class="label-eyebrow guide-block-label">Terrain</p>
-              <p>{expedition.terrain}</p>
-            </div>
-          )}
-        </div>
+      <div class="container guide-boxes">
+        {expedition.accessAndLogistics && (
+          <div class="detail-tag-section">
+            <p class="detail-tag-section-label">Access & Logistics</p>
+            <p class="guide-text">{expedition.accessAndLogistics}</p>
+          </div>
+        )}
+        {expedition.seasonWindow && (
+          <div class="detail-tag-section" style="margin-top: -1px;">
+            <p class="detail-tag-section-label">Season Window & What to Expect</p>
+            <p class="guide-text">{expedition.seasonWindow}</p>
+          </div>
+        )}
+        {expedition.terrain && (
+          <div class="detail-tag-section" style="margin-top: -1px;">
+            <p class="detail-tag-section-label">Terrain</p>
+            <p class="guide-text">{expedition.terrain}</p>
+          </div>
+        )}
         {expedition.physicalRequirements?.level && (
-          <div class="physical-req">
-            <p class="label-eyebrow" style="margin: 0;">Physical Requirements</p>
-            <div class="physical-req-body">
+          <div class="detail-tag-section" style="margin-top: -1px;">
+            <p class="detail-tag-section-label">Physical Requirements</p>
+            <div style="display: flex; align-items: baseline; gap: 1rem; flex-wrap: wrap;">
               <span
                 class="physical-level"
                 style={`color: ${levelColor[expedition.physicalRequirements.level] ?? "var(--ember)"}`}
-              >
-                {expedition.physicalRequirements.level}
-              </span>
+              >{expedition.physicalRequirements.level}</span>
               {expedition.physicalRequirements.descriptor && (
-                <p class="physical-req-desc">{expedition.physicalRequirements.descriptor}</p>
+                <p class="guide-text" style="margin: 0;">{expedition.physicalRequirements.descriptor}</p>
               )}
             </div>
           </div>

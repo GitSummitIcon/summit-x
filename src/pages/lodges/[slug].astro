@@ -52,6 +52,15 @@ const levelColor: Record<string, string> = {
   Demanding: "#d96060",
 };
 
+function textToHtml(text: string): string {
+  const escaped = text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  return escaped
+    .split(/\n\n+/)
+    .map(para => `<p>${para.trim().replace(/\n/g, "<br>")}</p>`)
+    .join("");
+}
+const editorialHtml = lodge.editorialIntro ? textToHtml(lodge.editorialIntro) : null;
+
 const structuredData = {
   "@context": "https://schema.org",
   "@type": "LodgingBusiness",
@@ -107,8 +116,8 @@ const structuredData = {
 
     <div class="container detail-body">
       <div class="detail-description">
-        {lodge.editorialIntro
-          ? <p>{lodge.editorialIntro}</p>
+        {editorialHtml
+          ? <Fragment set:html={editorialHtml} />
           : lodge.description && <PortableText blocks={lodge.description} />
         }
       </div>
@@ -142,40 +151,35 @@ const structuredData = {
     </div>
 
     {(lodge.accessAndLogistics || lodge.seasonWindow || lodge.terrain || lodge.physicalRequirements?.level) && (
-      <div class="container guide-section">
-        <p class="label-eyebrow guide-section-label">Lodge Guide</p>
-        <div class="guide-grid">
-          {lodge.accessAndLogistics && (
-            <div class="guide-block">
-              <p class="label-eyebrow guide-block-label">Access & Logistics</p>
-              <p>{lodge.accessAndLogistics}</p>
-            </div>
-          )}
-          {lodge.seasonWindow && (
-            <div class="guide-block">
-              <p class="label-eyebrow guide-block-label">Season Window & What to Expect</p>
-              <p>{lodge.seasonWindow}</p>
-            </div>
-          )}
-          {lodge.terrain && (
-            <div class="guide-block">
-              <p class="label-eyebrow guide-block-label">Terrain</p>
-              <p>{lodge.terrain}</p>
-            </div>
-          )}
-        </div>
+      <div class="container guide-boxes">
+        {lodge.accessAndLogistics && (
+          <div class="detail-tag-section">
+            <p class="detail-tag-section-label">Access & Logistics</p>
+            <p class="guide-text">{lodge.accessAndLogistics}</p>
+          </div>
+        )}
+        {lodge.seasonWindow && (
+          <div class="detail-tag-section" style="margin-top: -1px;">
+            <p class="detail-tag-section-label">Season Window & What to Expect</p>
+            <p class="guide-text">{lodge.seasonWindow}</p>
+          </div>
+        )}
+        {lodge.terrain && (
+          <div class="detail-tag-section" style="margin-top: -1px;">
+            <p class="detail-tag-section-label">Terrain</p>
+            <p class="guide-text">{lodge.terrain}</p>
+          </div>
+        )}
         {lodge.physicalRequirements?.level && (
-          <div class="physical-req">
-            <p class="label-eyebrow" style="margin: 0;">Physical Requirements</p>
-            <div class="physical-req-body">
+          <div class="detail-tag-section" style="margin-top: -1px;">
+            <p class="detail-tag-section-label">Physical Requirements</p>
+            <div style="display: flex; align-items: baseline; gap: 1rem; flex-wrap: wrap;">
               <span
                 class="physical-level"
                 style={`color: ${levelColor[lodge.physicalRequirements.level] ?? "var(--ember)"}`}
-              >
-                {lodge.physicalRequirements.level}
-              </span>
+              >{lodge.physicalRequirements.level}</span>
               {lodge.physicalRequirements.descriptor && (
-                <p class="physical-req-desc">{lodge.physicalRequirements.descriptor}</p>
+                <p class="guide-text" style="margin: 0;">{lodge.physicalRequirements.descriptor}</p>
               )}
             </div>
           </div>

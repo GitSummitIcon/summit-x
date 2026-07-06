@@ -1884,6 +1884,17 @@ a.press-logo-wrap:hover {
 
 /* ─── Lodge / Expedition guide sections ──────────────────────────────────── */
 
+.guide-boxes {
+  padding-block: clamp(2rem, 4vw, 3rem) 0;
+  border-top: 1px solid var(--border);
+}
+
+.guide-text {
+  margin: 0;
+  color: rgb(240 231 216 / 0.82);
+  line-height: 1.72;
+}
+
 .lodge-tagline {
   margin: 0.75rem 0 0;
   font-family: var(--font-display);
