@@ -1,4 +1,5 @@
 import { defineField, defineType } from "sanity";
+import { GalleryInput } from "../components/GalleryInput";
 
 export const chalet = defineType({
   name: "chalet",
@@ -93,7 +94,8 @@ export const chalet = defineType({
       type: "array",
       of: [{ type: "image", options: { hotspot: true } }],
       options: { layout: "grid" },
-      description: "Select multiple images at once by holding Cmd (Mac) or Ctrl (Windows) in the file picker.",
+      components: { input: GalleryInput },
+      description: "Use 'Add multiple images from library' to select many at once. Drag to reorder.",
     }),
     defineField({
       name: "description",

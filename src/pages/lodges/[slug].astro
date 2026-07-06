@@ -17,7 +17,13 @@ const { slug } = Astro.params;
 
 const lodge = await sanityClient.fetch(`
   *[_type == "lodge" && slug.current == $slug][0] {
-    name, bedrooms, sleeps, priceOnRequest, priceRange, style, amenities, includedServices, onRequest, description,
+    name, bedrooms, sleeps, priceOnRequest, priceRange, style,
+    amenities, includedServices, onRequest, description,
+    tagline, shortDescription, editorialIntro, seoTitle, metaDescription,
+    accessAndLogistics, seasonWindow, terrain,
+    physicalRequirements { level, descriptor },
+    signatureExperiences[] { name, description, link },
+    faqs[] { question, answer },
     "location": location{ lat, lng },
     "heroUrl": gallery[0].asset->url + "?w=1600&auto=format",
     "gallery": gallery[]{ "url": asset->url + "?w=1200&auto=format" },
@@ -27,6 +33,7 @@ const lodge = await sanityClient.fetch(`
 
 if (!lodge) return Astro.redirect("/lodges");
 
+const seoTitle = lodge.seoTitle ?? `${lodge.name} — Summit X`;
 const priceDisplay = lodge.priceOnRequest || !lodge.priceRange?.min
   ? "Price on request"
   : `${lodge.priceRange.currency ?? "GBP"} ${lodge.priceRange.min.toLocaleString()}–${lodge.priceRange.max?.toLocaleString() ?? ""}`;
@@ -36,18 +43,29 @@ const descParts = [
   lodge.bedrooms && `${lodge.bedrooms} bedrooms`,
   lodge.sleeps && `sleeps ${lodge.sleeps}`,
 ].filter(Boolean).join(", ");
-const description = `${lodge.name}${descParts ? ` — ${descParts}` : ""}. A boutique mountain lodge curated by Summit X.`;
+const seoDescription = lodge.metaDescription
+  ?? `${lodge.name}${descParts ? ` — ${descParts}` : ""}. A boutique mountain lodge curated by Summit X.`;
+
+const levelColor: Record<string, string> = {
+  None: "#7ab97a",
+  Moderate: "var(--ember)",
+  Demanding: "#d96060",
+};
 
 const structuredData = {
   "@context": "https://schema.org",
   "@type": "LodgingBusiness",
   name: lodge.name,
-  description,
+  description: seoDescription,
   url: `https://summitx.iconprivatecollection.com/lodges/${slug}`,
   ...(lodge.heroUrl && { image: lodge.heroUrl }),
   ...(lodge.destination && { location: { "@type": "Place", name: lodge.destination.name } }),
   ...(lodge.amenities?.length && {
-    amenityFeature: lodge.amenities.map((a: string) => ({ "@type": "LocationFeatureSpecification", name: a, value: true })),
+    amenityFeature: lodge.amenities.map((a: string) => ({
+      "@type": "LocationFeatureSpecification",
+      name: a,
+      value: true,
+    })),
   }),
   brand: { "@type": "Brand", name: "Summit X" },
   parentOrganization: { "@type": "Organization", name: "Icon Private Collection" },
@@ -56,13 +74,14 @@ const structuredData = {
 ---
 
 <BaseLayout
-  title={`${lodge.name} — Summit X`}
-  description={description}
+  title={seoTitle}
+  description={seoDescription}
   image={lodge.heroUrl ?? undefined}
   structuredData={structuredData}
 >
   <NavSummitX />
   <main id="main">
+
     {lodge.heroUrl && (
       <div class="detail-hero">
         <img src={lodge.heroUrl} alt={lodge.name} loading="eager" />
@@ -83,11 +102,15 @@ const structuredData = {
         </p>
       )}
       <h1 class="display reveal reveal-delay-1">{lodge.name}</h1>
+      {lodge.tagline && <p class="lodge-tagline reveal reveal-delay-2">{lodge.tagline}</p>}
     </div>
 
     <div class="container detail-body">
       <div class="detail-description">
-        {lodge.description && <PortableText blocks={lodge.description} />}
+        {lodge.editorialIntro
+          ? <p>{lodge.editorialIntro}</p>
+          : lodge.description && <PortableText blocks={lodge.description} />
+        }
       </div>
       <aside class="detail-aside">
         <div class="detail-specs">
@@ -118,41 +141,107 @@ const structuredData = {
       </aside>
     </div>
 
-    {lodge.amenities?.length > 0 && (
-      <div class="container">
-        <div class="detail-aside" style="grid-column: 9 / span 4;">
-          <div class="detail-tag-section">
-            <p class="detail-tag-section-label">Amenities</p>
-            <ul class="tag-list">
-              {lodge.amenities.map((a: string) => <li class="tag">{a}</li>)}
-            </ul>
+    {(lodge.accessAndLogistics || lodge.seasonWindow || lodge.terrain || lodge.physicalRequirements?.level) && (
+      <div class="container guide-section">
+        <p class="label-eyebrow guide-section-label">Lodge Guide</p>
+        <div class="guide-grid">
+          {lodge.accessAndLogistics && (
+            <div class="guide-block">
+              <p class="label-eyebrow guide-block-label">Access & Logistics</p>
+              <p>{lodge.accessAndLogistics}</p>
+            </div>
+          )}
+          {lodge.seasonWindow && (
+            <div class="guide-block">
+              <p class="label-eyebrow guide-block-label">Season Window & What to Expect</p>
+              <p>{lodge.seasonWindow}</p>
+            </div>
+          )}
+          {lodge.terrain && (
+            <div class="guide-block">
+              <p class="label-eyebrow guide-block-label">Terrain</p>
+              <p>{lodge.terrain}</p>
+            </div>
+          )}
+        </div>
+        {lodge.physicalRequirements?.level && (
+          <div class="physical-req">
+            <p class="label-eyebrow" style="margin: 0;">Physical Requirements</p>
+            <div class="physical-req-body">
+              <span
+                class="physical-level"
+                style={`color: ${levelColor[lodge.physicalRequirements.level] ?? "var(--ember)"}`}
+              >
+                {lodge.physicalRequirements.level}
+              </span>
+              {lodge.physicalRequirements.descriptor && (
+                <p class="physical-req-desc">{lodge.physicalRequirements.descriptor}</p>
+              )}
+            </div>
           </div>
+        )}
+      </div>
+    )}
+
+    {lodge.signatureExperiences?.length > 0 && (
+      <div class="container guide-section">
+        <p class="label-eyebrow guide-section-label">Signature Experiences</p>
+        <div class="experiences-grid">
+          {lodge.signatureExperiences.map((exp: { name: string; description?: string; link?: string }) => (
+            <div class="experience-card">
+              <p class="label-eyebrow">Experience</p>
+              <h3 class="experience-name display">{exp.name}</h3>
+              {exp.description && <p class="experience-desc">{exp.description}</p>}
+              {exp.link && <a href={exp.link} class="experience-link">Explore →</a>}
+            </div>
+          ))}
+        </div>
+      </div>
+    )}
+
+    {lodge.faqs?.length > 0 && (
+      <div class="container faq-section">
+        <p class="label-eyebrow">Frequently Asked</p>
+        <ul class="faq-list">
+          {lodge.faqs.map((faq: { question: string; answer: string }) => (
+            <li class="faq-item">
+              <p class="faq-question">{faq.question}</p>
+              <p class="faq-answer">{faq.answer}</p>
+            </li>
+          ))}
+        </ul>
+      </div>
+    )}
+
+    {lodge.amenities?.length > 0 && (
+      <div class="container" style="padding-block: clamp(2rem, 4vw, 3rem) 0; border-top: 1px solid var(--border);">
+        <div class="detail-tag-section">
+          <p class="detail-tag-section-label">Amenities</p>
+          <ul class="tag-list">
+            {lodge.amenities.map((a: string) => <li class="tag">{a}</li>)}
+          </ul>
         </div>
       </div>
     )}
 
     {lodge.includedServices?.length > 0 && (
-      <div class="container">
-        <div class="detail-aside" style="grid-column: 9 / span 4;">
-          <div class="detail-tag-section">
-            <p class="detail-tag-section-label">Included Services</p>
-            <ul class="tag-list">
-              {lodge.includedServices.map((s: string) => <li class="tag">{s}</li>)}
-            </ul>
-          </div>
+      <div class="container" style="padding-block: 0;">
+        <div class="detail-tag-section" style="margin-top: -1px;">
+          <p class="detail-tag-section-label">Included Services</p>
+          <ul class="tag-list">
+            {lodge.includedServices.map((s: string) => <li class="tag">{s}</li>)}
+          </ul>
         </div>
       </div>
     )}
 
     {lodge.onRequest?.length > 0 && (
-      <div class="container">
-        <div class="detail-aside" style="grid-column: 9 / span 4;">
-          <div class="detail-tag-section">
-            <p class="detail-tag-section-label">On Request</p>
-            <ul class="tag-list">
-              {lodge.onRequest.map((r: string) => <li class="tag">{r}</li>)}
-            </ul>
-          </div>
+      <div class="container" style="padding-block: 0;">
+        <div class="detail-tag-section" style="margin-top: -1px;">
+          <p class="detail-tag-section-label">On Request</p>
+          <ul class="tag-list">
+            {lodge.onRequest.map((r: string) => <li class="tag">{r}</li>)}
+          </ul>
         </div>
       </div>
     )}

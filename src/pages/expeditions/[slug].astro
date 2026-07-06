@@ -18,6 +18,10 @@ const { slug } = Astro.params;
 const expedition = await sanityClient.fetch(`
   *[_type == "expedition" && slug.current == $slug][0] {
     name, lodgeType, season, duration, description,
+    tagline, editorialIntro, seoTitle, metaDescription,
+    accessAndLogistics, seasonWindow, terrain,
+    physicalRequirements { level, descriptor },
+    faqs[] { question, answer },
     "location": location{ lat, lng },
     "heroUrl": gallery[0].asset->url + "?w=1600&auto=format",
     "gallery": gallery[]{ "url": asset->url + "?w=1200&auto=format" },
@@ -27,18 +31,27 @@ const expedition = await sanityClient.fetch(`
 
 if (!expedition) return Astro.redirect("/expeditions");
 
+const seoTitle = expedition.seoTitle ?? `${expedition.name} — Summit X`;
+
 const descParts = [
   expedition.destination?.name && `in ${expedition.destination.name}`,
   expedition.duration,
   expedition.season && `${expedition.season} season`,
 ].filter(Boolean).join(", ");
-const description = `${expedition.name}${descParts ? ` — ${descParts}` : ""}. A guided mountain expedition curated by Summit X.`;
+const seoDescription = expedition.metaDescription
+  ?? `${expedition.name}${descParts ? ` — ${descParts}` : ""}. A guided mountain expedition curated by Summit X.`;
+
+const levelColor: Record<string, string> = {
+  None: "#7ab97a",
+  Moderate: "var(--ember)",
+  Demanding: "#d96060",
+};
 
 const structuredData = {
   "@context": "https://schema.org",
   "@type": "TouristTrip",
   name: expedition.name,
-  description,
+  description: seoDescription,
   url: `https://summitx.iconprivatecollection.com/expeditions/${slug}`,
   ...(expedition.heroUrl && { image: expedition.heroUrl }),
   ...(expedition.destination && { itinerary: { "@type": "Place", name: expedition.destination.name } }),
@@ -54,13 +67,14 @@ const structuredData = {
 ---
 
 <BaseLayout
-  title={`${expedition.name} — Summit X`}
-  description={description}
+  title={seoTitle}
+  description={seoDescription}
   image={expedition.heroUrl ?? undefined}
   structuredData={structuredData}
 >
   <NavSummitX />
   <main id="main">
+
     {expedition.heroUrl && (
       <div class="detail-hero">
         <img src={expedition.heroUrl} alt={expedition.name} loading="eager" />
@@ -81,11 +95,15 @@ const structuredData = {
         </p>
       )}
       <h1 class="display reveal reveal-delay-1">{expedition.name}</h1>
+      {expedition.tagline && <p class="lodge-tagline reveal reveal-delay-2">{expedition.tagline}</p>}
     </div>
 
     <div class="container detail-body">
       <div class="detail-description">
-        {expedition.description && <PortableText blocks={expedition.description} />}
+        {expedition.editorialIntro
+          ? <p>{expedition.editorialIntro}</p>
+          : expedition.description && <PortableText blocks={expedition.description} />
+        }
       </div>
       <aside class="detail-aside">
         <div class="detail-specs">
@@ -111,6 +129,62 @@ const structuredData = {
         </div>
       </aside>
     </div>
+
+    {(expedition.accessAndLogistics || expedition.seasonWindow || expedition.terrain || expedition.physicalRequirements?.level) && (
+      <div class="container guide-section">
+        <p class="label-eyebrow guide-section-label">Expedition Guide</p>
+        <div class="guide-grid">
+          {expedition.accessAndLogistics && (
+            <div class="guide-block">
+              <p class="label-eyebrow guide-block-label">Access & Logistics</p>
+              <p>{expedition.accessAndLogistics}</p>
+            </div>
+          )}
+          {expedition.seasonWindow && (
+            <div class="guide-block">
+              <p class="label-eyebrow guide-block-label">Season Window & What to Expect</p>
+              <p>{expedition.seasonWindow}</p>
+            </div>
+          )}
+          {expedition.terrain && (
+            <div class="guide-block">
+              <p class="label-eyebrow guide-block-label">Terrain</p>
+              <p>{expedition.terrain}</p>
+            </div>
+          )}
+        </div>
+        {expedition.physicalRequirements?.level && (
+          <div class="physical-req">
+            <p class="label-eyebrow" style="margin: 0;">Physical Requirements</p>
+            <div class="physical-req-body">
+              <span
+                class="physical-level"
+                style={`color: ${levelColor[expedition.physicalRequirements.level] ?? "var(--ember)"}`}
+              >
+                {expedition.physicalRequirements.level}
+              </span>
+              {expedition.physicalRequirements.descriptor && (
+                <p class="physical-req-desc">{expedition.physicalRequirements.descriptor}</p>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+    )}
+
+    {expedition.faqs?.length > 0 && (
+      <div class="container faq-section">
+        <p class="label-eyebrow">Frequently Asked</p>
+        <ul class="faq-list">
+          {expedition.faqs.map((faq: { question: string; answer: string }) => (
+            <li class="faq-item">
+              <p class="faq-question">{faq.question}</p>
+              <p class="faq-answer">{faq.answer}</p>
+            </li>
+          ))}
+        </ul>
+      </div>
+    )}
 
     {expedition.location?.lat && expedition.location?.lng && (
       <PropertyMap lat={expedition.location.lat} lng={expedition.location.lng} label={expedition.name} />

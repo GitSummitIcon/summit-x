@@ -1,5 +1,6 @@
 import { defineConfig } from "sanity";
 import { deskTool } from "sanity/desk";
+import { media, mediaAssetSource } from "sanity-plugin-media";
 import { schemaTypes } from "./schemas";
 
 export default defineConfig({
@@ -9,7 +10,13 @@ export default defineConfig({
   projectId: "w7t6epfm",
   dataset: "production",
 
-  plugins: [deskTool()],
+  plugins: [deskTool(), media()],
+
+  form: {
+    image: {
+      assetSources: () => [mediaAssetSource],
+    },
+  },
 
   schema: {
     types: schemaTypes,
