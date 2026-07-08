@@ -17,7 +17,7 @@ const { slug } = Astro.params;
 
 const chalet = await sanityClient.fetch(`
   *[_type == "chalet" && slug.current == $slug][0] {
-    name, bedrooms, sleeps, priceOnRequest, priceRange, amenities, includedServices, onRequest, description,
+    name, bedrooms, sleeps, priceOnRequest, priceRange, amenities, includedServices, onRequest, description, altitude,
     "location": location{ lat, lng },
     "heroUrl": gallery[0].asset->url + "?w=1600&auto=format",
     "gallery": gallery[]{ "url": asset->url + "?w=1200&auto=format" },
@@ -37,6 +37,12 @@ const descParts = [
   chalet.sleeps && `sleeps ${chalet.sleeps}`,
 ].filter(Boolean).join(", ");
 const description = `${chalet.name}${descParts ? ` — ${descParts}` : ""}. A luxury alpine chalet curated by Summit X.`;
+
+function formatCoords(lat: number, lng: number): string {
+  const latDir = lat >= 0 ? "N" : "S";
+  const lngDir = lng >= 0 ? "E" : "W";
+  return `${Math.abs(lat).toFixed(2)}°${latDir} · ${Math.abs(lng).toFixed(2)}°${lngDir}`;
+}
 
 const structuredData = {
   "@context": "https://schema.org",
@@ -78,11 +84,16 @@ const structuredData = {
     )}
 
     <div class="detail-header container">
-      {chalet.destination && (
-        <p class="label-eyebrow reveal">
-          <a href={`/destinations/${chalet.destination.slug}`}>{chalet.destination.name}</a>
-        </p>
-      )}
+      <div class="detail-header-meta reveal">
+        {chalet.destination && (
+          <p class="label-eyebrow">
+            <a href={`/destinations/${chalet.destination.slug}`}>{chalet.destination.name}</a>
+          </p>
+        )}
+        {chalet.location?.lat && chalet.location?.lng && (
+          <p class="label-eyebrow coords-display">{formatCoords(chalet.location.lat, chalet.location.lng)}</p>
+        )}
+      </div>
       <h1 class="display reveal reveal-delay-1">{chalet.name}</h1>
     </div>
 
@@ -109,6 +120,12 @@ const structuredData = {
             <span class="label-eyebrow">Price</span>
             <span>{priceDisplay}</span>
           </div>
+          {chalet.altitude && (
+            <div class="detail-spec-row">
+              <span class="label-eyebrow">Altitude</span>
+              <span>{chalet.altitude.toLocaleString()}m</span>
+            </div>
+          )}
         </div>
       </aside>
     </div>

@@ -1895,6 +1895,20 @@ a.press-logo-wrap:hover {
   line-height: 1.72;
 }
 
+.detail-header-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.coords-display {
+  letter-spacing: 0.1em;
+  color: rgb(240 231 216 / 0.5);
+  font-variant-numeric: tabular-nums;
+}
+
 .lodge-tagline {
   margin: 0.75rem 0 0;
   font-family: var(--font-display);

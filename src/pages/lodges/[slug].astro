@@ -24,6 +24,7 @@ const lodge = await sanityClient.fetch(`
     physicalRequirements { level, descriptor },
     signatureExperiences[] { name, description, link },
     faqs[] { question, answer },
+    altitude,
     "location": location{ lat, lng },
     "heroUrl": gallery[0].asset->url + "?w=1600&auto=format",
     "gallery": gallery[]{ "url": asset->url + "?w=1200&auto=format" },
@@ -51,6 +52,12 @@ const levelColor: Record<string, string> = {
   Moderate: "var(--ember)",
   Demanding: "#d96060",
 };
+
+function formatCoords(lat: number, lng: number): string {
+  const latDir = lat >= 0 ? "N" : "S";
+  const lngDir = lng >= 0 ? "E" : "W";
+  return `${Math.abs(lat).toFixed(2)}°${latDir} · ${Math.abs(lng).toFixed(2)}°${lngDir}`;
+}
 
 function textToHtml(text: string): string {
   const escaped = text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -105,11 +112,16 @@ const structuredData = {
     )}
 
     <div class="detail-header container">
-      {lodge.destination && (
-        <p class="label-eyebrow reveal">
-          <a href={`/destinations/${lodge.destination.slug}`}>{lodge.destination.name}</a>
-        </p>
-      )}
+      <div class="detail-header-meta reveal">
+        {lodge.destination && (
+          <p class="label-eyebrow">
+            <a href={`/destinations/${lodge.destination.slug}`}>{lodge.destination.name}</a>
+          </p>
+        )}
+        {lodge.location?.lat && lodge.location?.lng && (
+          <p class="label-eyebrow coords-display">{formatCoords(lodge.location.lat, lodge.location.lng)}</p>
+        )}
+      </div>
       <h1 class="display reveal reveal-delay-1">{lodge.name}</h1>
       {lodge.tagline && <p class="lodge-tagline reveal reveal-delay-2">{lodge.tagline}</p>}
     </div>
@@ -146,6 +158,12 @@ const structuredData = {
             <span class="label-eyebrow">Price</span>
             <span>{priceDisplay}</span>
           </div>
+          {lodge.altitude && (
+            <div class="detail-spec-row">
+              <span class="label-eyebrow">Altitude</span>
+              <span>{lodge.altitude.toLocaleString()}m</span>
+            </div>
+          )}
         </div>
       </aside>
     </div>

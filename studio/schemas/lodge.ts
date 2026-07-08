@@ -251,6 +251,12 @@ export const lodge = defineType({
       description: "On Google Maps: right-click the property location → click the coordinates that appear.",
     }),
     defineField({
+      name: "altitude",
+      title: "Altitude (metres)",
+      type: "number",
+      description: "Resort or property altitude in metres above sea level — e.g. 1800",
+    }),
+    defineField({
       name: "gallery",
       title: "Gallery",
       type: "array",
