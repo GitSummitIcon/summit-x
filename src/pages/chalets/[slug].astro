@@ -40,7 +40,9 @@ const description = `${chalet.name}${descParts ? ` — ${descParts}` : ""}. A lu
 
 function formatCoords(lat: number, lng: number): string {
   const fmt = (n: number) => (Math.trunc(n * 100) / 100).toFixed(2);
-  return `${fmt(lat)}° · ${fmt(lng)}°`;
+  const latDir = lat >= 0 ? "N" : "S";
+  const lngDir = lng >= 0 ? "E" : "W";
+  return `${fmt(lat)}°${latDir} · ${fmt(lng)}°${lngDir}`;
 }
 
 const structuredData = {
