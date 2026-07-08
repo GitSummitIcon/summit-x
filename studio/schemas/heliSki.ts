@@ -41,6 +41,57 @@ export const heliSki = defineType({
       type: "string",
       description: 'e.g. "2–6 guests"',
     }),
+    // ── Guide sections ────────────────────────────────────────────────────────
+    defineField({
+      name: "accessAndLogistics",
+      title: "Access & Logistics",
+      type: "text",
+      rows: 4,
+      description: "How to get there, transfer options, access conditions.",
+    }),
+    defineField({
+      name: "seasonWindow",
+      title: "Season Window & What to Expect",
+      type: "text",
+      rows: 4,
+      description: "Best months, weather, snow conditions, what the experience feels like.",
+    }),
+    defineField({
+      name: "terrain",
+      title: "Terrain",
+      type: "text",
+      rows: 4,
+      description: "Character of the landscape and heli-ski terrain.",
+    }),
+    defineField({
+      name: "physicalRequirements",
+      title: "Physical Requirements",
+      type: "object",
+      description: "Honest assessment of fitness and ski ability required.",
+      fields: [
+        defineField({
+          name: "level",
+          title: "Level",
+          type: "string",
+          options: {
+            list: [
+              { title: "None — suitable for all abilities", value: "None" },
+              { title: "Moderate — reasonable fitness required", value: "Moderate" },
+              { title: "Demanding — strong fitness and experience required", value: "Demanding" },
+            ],
+            layout: "radio",
+          },
+        }),
+        defineField({
+          name: "descriptor",
+          title: "Descriptor",
+          type: "text",
+          rows: 2,
+          description: "One or two sentence honest description of what is required.",
+        }),
+      ],
+    }),
+
     defineField({
       name: "gallery",
       title: "Gallery",

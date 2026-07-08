@@ -17,6 +17,8 @@ const { slug } = Astro.params;
 const heliSki = await sanityClient.fetch(`
   *[_type == "heliSki" && slug.current == $slug][0] {
     name, terrainType, season, groupSize, description,
+    accessAndLogistics, seasonWindow, terrain,
+    physicalRequirements { level, descriptor },
     "heroUrl": gallery[0].asset->url + "?w=1600&auto=format",
     "gallery": gallery[]{ "url": asset->url + "?w=1200&auto=format" },
     "destination": destination->{ name, "slug": slug.current }
@@ -24,6 +26,12 @@ const heliSki = await sanityClient.fetch(`
 `, { slug });
 
 if (!heliSki) return Astro.redirect("/heli-ski");
+
+const levelColor: Record<string, string> = {
+  None: "#7ab97a",
+  Moderate: "var(--ember)",
+  Demanding: "#d96060",
+};
 
 const descParts = [
   heliSki.destination?.name && `in ${heliSki.destination.name}`,
@@ -108,6 +116,43 @@ const structuredData = {
         </div>
       </aside>
     </div>
+
+    {(heliSki.accessAndLogistics || heliSki.seasonWindow || heliSki.terrain || heliSki.physicalRequirements?.level) && (
+      <div class="container guide-boxes">
+        {heliSki.accessAndLogistics && (
+          <div class="detail-tag-section">
+            <p class="detail-tag-section-label">Access & Logistics</p>
+            <p class="guide-text">{heliSki.accessAndLogistics}</p>
+          </div>
+        )}
+        {heliSki.seasonWindow && (
+          <div class="detail-tag-section" style="margin-top: -1px;">
+            <p class="detail-tag-section-label">Season Window & What to Expect</p>
+            <p class="guide-text">{heliSki.seasonWindow}</p>
+          </div>
+        )}
+        {heliSki.terrain && (
+          <div class="detail-tag-section" style="margin-top: -1px;">
+            <p class="detail-tag-section-label">Terrain</p>
+            <p class="guide-text">{heliSki.terrain}</p>
+          </div>
+        )}
+        {heliSki.physicalRequirements?.level && (
+          <div class="detail-tag-section" style="margin-top: -1px;">
+            <p class="detail-tag-section-label">Physical Requirements</p>
+            <div style="display: flex; align-items: baseline; gap: 1rem; flex-wrap: wrap;">
+              <span
+                class="physical-level"
+                style={`color: ${levelColor[heliSki.physicalRequirements.level] ?? "var(--ember)"}`}
+              >{heliSki.physicalRequirements.level}</span>
+              {heliSki.physicalRequirements.descriptor && (
+                <p class="guide-text" style="margin: 0;">{heliSki.physicalRequirements.descriptor}</p>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+    )}
 
     <LightboxGallery images={heliSki.gallery ?? []} />
 
