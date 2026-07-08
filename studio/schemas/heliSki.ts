@@ -93,6 +93,12 @@ export const heliSki = defineType({
     }),
 
     defineField({
+      name: "location",
+      title: "Location",
+      type: "geopoint",
+      description: "On Google Maps: right-click the heli-ski base or landing zone → click the coordinates that appear.",
+    }),
+    defineField({
       name: "gallery",
       title: "Gallery",
       type: "array",

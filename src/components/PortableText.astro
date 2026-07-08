@@ -1,7 +1,15 @@
 ---
 type MarkDef = { _key: string; _type: string; href?: string };
 type Span = { _key: string; _type: string; text: string; marks?: string[] };
-type Block = { _key: string; _type: string; style?: string; children?: Span[]; markDefs?: MarkDef[] };
+type Block = {
+  _key: string;
+  _type: string;
+  style?: string;
+  listItem?: string;
+  level?: number;
+  children?: Span[];
+  markDefs?: MarkDef[];
+};
 
 const { blocks } = Astro.props as { blocks: Block[] | null | undefined };
 
@@ -13,31 +21,54 @@ function renderSpan(span: Span, markDefs: MarkDef[]): string {
     .replace(/\n/g, "<br>");
 
   for (const mark of span.marks ?? []) {
-    if (mark === "strong")         html = `<strong>${html}</strong>`;
-    else if (mark === "em")        html = `<em>${html}</em>`;
-    else if (mark === "code")      html = `<code>${html}</code>`;
-    else if (mark === "underline") html = `<u>${html}</u>`;
+    if (mark === "strong")              html = `<strong>${html}</strong>`;
+    else if (mark === "em")             html = `<em>${html}</em>`;
+    else if (mark === "code")           html = `<code>${html}</code>`;
+    else if (mark === "underline")      html = `<u>${html}</u>`;
     else if (mark === "strike-through") html = `<s>${html}</s>`;
     else {
       const def = markDefs.find((d) => d._key === mark);
-      if (def?._type === "link" && def.href) {
+      if (def?._type === "link" && def.href)
         html = `<a href="${def.href}" target="_blank" rel="noopener noreferrer">${html}</a>`;
-      }
     }
   }
   return html;
 }
 
-function renderBlock(block: Block): string {
+function renderInner(block: Block): string {
   const markDefs = block.markDefs ?? [];
-  const inner = block.children?.map((s) => renderSpan(s, markDefs)).join("") ?? "";
-  if (block.style === "h2")         return `<h2>${inner}</h2>`;
-  if (block.style === "h3")         return `<h3>${inner}</h3>`;
-  if (block.style === "blockquote") return `<blockquote>${inner}</blockquote>`;
-  return `<p>${inner}</p>`;
+  return block.children?.map((s) => renderSpan(s, markDefs)).join("") ?? "";
+}
+
+function renderAllBlocks(blocks: Block[]): string {
+  const output: string[] = [];
+  let i = 0;
+
+  while (i < blocks.length) {
+    const block = blocks[i];
+    if (block._type !== "block") { i++; continue; }
+
+    if (block.listItem) {
+      const listType = block.listItem;
+      const tag = listType === "number" ? "ol" : "ul";
+      const items: string[] = [];
+      while (i < blocks.length && blocks[i]._type === "block" && blocks[i].listItem === listType) {
+        items.push(`<li>${renderInner(blocks[i])}</li>`);
+        i++;
+      }
+      output.push(`<${tag}>${items.join("")}</${tag}>`);
+    } else {
+      const inner = renderInner(block);
+      if (block.style === "h2")              output.push(`<h2>${inner}</h2>`);
+      else if (block.style === "h3")         output.push(`<h3>${inner}</h3>`);
+      else if (block.style === "blockquote") output.push(`<blockquote>${inner}</blockquote>`);
+      else                                   output.push(`<p>${inner}</p>`);
+      i++;
+    }
+  }
+
+  return output.join("");
 }
 ---
 
-{blocks?.filter((b) => b._type === "block").map((block) => (
-  <Fragment set:html={renderBlock(block)} />
-))}
+<Fragment set:html={renderAllBlocks(blocks ?? [])} />

@@ -5,6 +5,7 @@ import Footer from "../../components/Footer.astro";
 import PortableText from "../../components/PortableText.astro";
 import EnquiryCTA from "../../components/EnquiryCTA.astro";
 import LightboxGallery from "../../components/LightboxGallery.astro";
+import PropertyMap from "../../components/PropertyMap.astro";
 import { sanityClient } from "../../lib/sanity";
 
 export async function getStaticPaths() {
@@ -19,6 +20,7 @@ const heliSki = await sanityClient.fetch(`
     name, terrainType, season, groupSize, description,
     accessAndLogistics, seasonWindow, terrain,
     physicalRequirements { level, descriptor },
+    "location": location{ lat, lng },
     "heroUrl": gallery[0].asset->url + "?w=1600&auto=format",
     "gallery": gallery[]{ "url": asset->url + "?w=1200&auto=format" },
     "destination": destination->{ name, "slug": slug.current }
@@ -152,6 +154,10 @@ const structuredData = {
           </div>
         )}
       </div>
+    )}
+
+    {heliSki.location?.lat && heliSki.location?.lng && (
+      <PropertyMap lat={heliSki.location.lat} lng={heliSki.location.lng} label={heliSki.name} />
     )}
 
     <LightboxGallery images={heliSki.gallery ?? []} />
