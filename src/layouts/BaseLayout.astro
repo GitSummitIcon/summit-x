@@ -45,6 +45,10 @@ const { title, description, image, structuredData, enableReveal = siteConfig.eff
     <div class="site-shell">
       <slot />
     </div>
+    <script>
+      import { injectSpeedInsights } from "@vercel/speed-insights";
+      injectSpeedInsights();
+    </script>
     {enableReveal && (
       <script is:inline>
         (() => {

@@ -41,6 +41,7 @@
     "@fontsource/cormorant-garamond": "^5.2.11",
     "@fontsource/josefin-sans": "^5.2.5",
     "@sanity/client": "^7.23.0",
+    "@vercel/speed-insights": "^2.0.0",
     "astro": "^7.0.0",
     "fuse.js": "^7.4.2",
     "resend": "^6.16.0",
