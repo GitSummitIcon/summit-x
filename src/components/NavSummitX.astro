@@ -212,12 +212,18 @@ const regions = Object.entries(byRegion);
       .join("");
   }
 
-  // Close mobile nav when any link inside it is clicked
+  // Mobile nav scroll lock
   const mobileNav = document.getElementById("mobile-nav") as HTMLDetailsElement | null;
+  mobileNav?.addEventListener("toggle", () => {
+    document.body.style.overflow = mobileNav.open ? "hidden" : "";
+  });
+
+  // Close mobile nav when any link inside it is clicked
   document.querySelector(".mobile-nav__panel")?.addEventListener("click", (e) => {
     const target = e.target as HTMLElement;
     if (target.closest("a") && mobileNav) {
       mobileNav.open = false;
+      document.body.style.overflow = "";
     }
   });
 

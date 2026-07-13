@@ -1,0 +1,65 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import NavSummitX from "../components/NavSummitX.astro";
+import Footer from "../components/Footer.astro";
+---
+
+<BaseLayout
+  title="Page Not Found — Summit X"
+  description="The page you're looking for doesn't exist."
+>
+  <NavSummitX />
+  <main id="main">
+    <div class="not-found-wrap container">
+      <p class="label-eyebrow">404</p>
+      <h1 class="display">
+        Page not<br />
+        <span class="display-italic" style="color: var(--ember);">found.</span>
+      </h1>
+      <p class="not-found-body">
+        The page you're looking for doesn't exist or may have moved.
+      </p>
+      <div class="not-found-actions">
+        <a class="button-link" href="/">Back to home</a>
+        <a href="/destinations" class="not-found-link">Explore destinations &rarr;</a>
+      </div>
+    </div>
+  </main>
+  <Footer />
+</BaseLayout>
+
+<style>
+  .not-found-wrap {
+    min-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding-block: clamp(6rem, 12vw, 10rem);
+  }
+
+  .not-found-body {
+    margin: 1.5rem 0 0;
+    color: var(--muted-foreground);
+    max-width: 28rem;
+    line-height: 1.7;
+  }
+
+  .not-found-actions {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    flex-wrap: wrap;
+    margin-top: 2.5rem;
+  }
+
+  .not-found-link {
+    font-size: 0.85rem;
+    letter-spacing: 0.06em;
+    color: var(--muted-foreground);
+    text-decoration: none;
+  }
+
+  .not-found-link:hover {
+    color: var(--foreground);
+  }
+</style>

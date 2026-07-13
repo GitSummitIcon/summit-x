@@ -231,6 +231,9 @@ a:hover {
   border: 1px solid rgb(117 97 76 / 0.7);
   background: rgb(23 19 15 / 0.96);
   padding: 1rem;
+  max-height: calc(100svh - 5rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 .mobile-nav__panel a {
