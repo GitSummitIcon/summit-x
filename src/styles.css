@@ -1921,7 +1921,8 @@ a.press-logo-wrap:hover {
 
 .why-section {
   border-top: 1px solid var(--border);
-  padding-block: clamp(2.5rem, 5vw, 4rem);
+  padding-block-start: clamp(2.5rem, 5vw, 4rem);
+  padding-block-end: clamp(1rem, 2vw, 1.5rem);
 }
 
 .why-inner {
