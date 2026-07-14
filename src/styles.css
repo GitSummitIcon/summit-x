@@ -1921,27 +1921,27 @@ a.press-logo-wrap:hover {
 
 .why-section {
   border-top: 1px solid var(--border);
+  padding-block: clamp(2.5rem, 5vw, 4rem);
 }
 
 .why-inner {
-  display: grid;
-  grid-template-columns: auto 1fr;
+  display: flex;
   gap: clamp(2rem, 5vw, 6rem);
-  align-items: start;
+  align-items: center;
 }
 
 .why-body {
   margin: 0;
-  font-size: clamp(1rem, 1.4vw, 1.2rem);
+  font-size: 0.95rem;
   line-height: 1.78;
-  color: rgb(240 231 216 / 0.85);
-  max-width: 62rem;
+  color: rgb(240 231 216 / 0.75);
+  max-width: 52rem;
 }
 
 @media (max-width: 700px) {
   .why-inner {
-    grid-template-columns: 1fr;
-    gap: 1rem;
+    flex-direction: column;
+    gap: 1.25rem;
   }
 }
 
