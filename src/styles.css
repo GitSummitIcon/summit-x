@@ -1919,6 +1919,32 @@ a.press-logo-wrap:hover {
   font-variant-numeric: tabular-nums;
 }
 
+.why-section {
+  border-top: 1px solid var(--border);
+}
+
+.why-inner {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: clamp(2rem, 5vw, 6rem);
+  align-items: start;
+}
+
+.why-body {
+  margin: 0;
+  font-size: clamp(1rem, 1.4vw, 1.2rem);
+  line-height: 1.78;
+  color: rgb(240 231 216 / 0.85);
+  max-width: 62rem;
+}
+
+@media (max-width: 700px) {
+  .why-inner {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
+
 .lodge-tagline {
   margin: 0.75rem 0 0;
   font-family: var(--font-display);
