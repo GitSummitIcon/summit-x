@@ -79,4 +79,15 @@ const thumbs = skipFirst ? images.slice(1) : images;
     if (e.key === "ArrowLeft") show(idx - 1);
     if (e.key === "ArrowRight") show(idx + 1);
   });
+
+  let touchStartX = 0;
+  const stage = lb.querySelector(".lightbox-stage");
+  stage.addEventListener("touchstart", function(e) {
+    touchStartX = e.changedTouches[0].clientX;
+  }, { passive: true });
+  stage.addEventListener("touchend", function(e) {
+    const delta = e.changedTouches[0].clientX - touchStartX;
+    if (Math.abs(delta) < 50) return;
+    delta < 0 ? show(idx + 1) : show(idx - 1);
+  }, { passive: true });
 </script>
