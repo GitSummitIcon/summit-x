@@ -844,6 +844,11 @@ textarea {
   resize: vertical;
 }
 
+input::placeholder,
+textarea::placeholder {
+  color: var(--muted-foreground);
+}
+
 .site-footer {
   border-top: 1px solid var(--border);
   background: var(--background);
