@@ -2158,6 +2158,33 @@ a.press-logo-wrap:hover {
 
 /* ─────────────────────────────────────────────────────────────────────────── */
 
+.whatsapp-fab {
+  display: none;
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #25d366;
+  align-items: center;
+  justify-content: center;
+  z-index: 900;
+  box-shadow: 0 4px 14px rgb(0 0 0 / 0.35);
+  transition: transform 200ms ease, box-shadow 200ms ease;
+}
+
+@media (max-width: 768px) {
+  .whatsapp-fab {
+    display: flex;
+  }
+}
+
+.whatsapp-fab:hover {
+  transform: scale(1.07);
+  box-shadow: 0 6px 18px rgb(0 0 0 / 0.45);
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
