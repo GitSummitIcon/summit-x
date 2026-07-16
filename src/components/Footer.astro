@@ -4,7 +4,77 @@ import { siteConfig } from "../config/site";
 const year = new Date().getFullYear();
 ---
 
+<script>
+  const form = document.getElementById("footer-subscribe-form") as HTMLFormElement | null;
+  const status = document.getElementById("footer-subscribe-status") as HTMLParagraphElement | null;
+  const btn = form?.querySelector("button[type=submit]") as HTMLButtonElement | null;
+
+  form?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    if (!btn || !status) return;
+
+    const email = (form.elements.namedItem("email") as HTMLInputElement).value;
+    const website = (form.elements.namedItem("website") as HTMLInputElement).value;
+
+    btn.disabled = true;
+    btn.textContent = "Subscribing…";
+    status.textContent = "";
+    status.style.color = "";
+
+    try {
+      const res = await fetch("/api/subscribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, website }),
+      });
+
+      if (res.ok) {
+        form.reset();
+        status.textContent = "Thank you — check your inbox to confirm.";
+        status.style.color = "rgb(240 231 216 / 0.75)";
+      } else {
+        status.textContent = "Something went wrong. Please try again.";
+        status.style.color = "var(--ember)";
+      }
+    } catch {
+      status.textContent = "Something went wrong. Please try again.";
+      status.style.color = "var(--ember)";
+    }
+
+    btn.disabled = false;
+    btn.innerHTML = "Subscribe <span aria-hidden='true'>→</span>";
+  });
+</script>
+
 <footer class="site-footer">
+  <div class="container footer-subscribe-wrap">
+    <div class="footer-subscribe-inner">
+      <div>
+        <p class="label-eyebrow">Newsletter</p>
+        <p class="footer-subscribe-heading">Stay in the know</p>
+      </div>
+      <form id="footer-subscribe-form" class="footer-subscribe-form" novalidate>
+        <!-- honeypot: hidden from humans, filled by bots -->
+        <input type="text" name="website" tabindex="-1" aria-hidden="true" autocomplete="off" style="display:none;" />
+        <div class="footer-subscribe-fields">
+          <input
+            type="email"
+            id="footer-email"
+            name="email"
+            placeholder="Your email address"
+            required
+            autocomplete="email"
+            class="footer-subscribe-input"
+          />
+          <button type="submit" class="form-button footer-subscribe-btn">
+            Subscribe <span aria-hidden="true">&rarr;</span>
+          </button>
+        </div>
+        <p id="footer-subscribe-status" class="footer-subscribe-status" aria-live="polite"></p>
+      </form>
+    </div>
+  </div>
+
   <div class="container footer-grid">
     <div class="footer-brand">
       <strong>{siteConfig.name.toUpperCase()}</strong>
