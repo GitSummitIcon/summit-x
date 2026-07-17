@@ -200,6 +200,8 @@ const structuredData = destination.faqs?.length > 0 ? {
         </div>
       </div>
     )}
+    <LightboxGallery images={destination.gallery ?? []} skipFirst={false} />
+
     {destination.faqs?.length > 0 && (
       <div class="container faq-section">
         <p class="label-eyebrow">FAQ</p>
@@ -214,8 +216,6 @@ const structuredData = destination.faqs?.length > 0 ? {
         </dl>
       </div>
     )}
-
-    <LightboxGallery images={destination.gallery ?? []} skipFirst={false} />
   </main>
   <Footer />
 </BaseLayout>
