@@ -54,6 +54,13 @@ const { title, description, image, structuredData, enableReveal = siteConfig.eff
       import { injectSpeedInsights } from "@vercel/speed-insights";
       injectSpeedInsights();
     </script>
+    <script is:inline>
+      document.querySelector(".whatsapp-fab")?.addEventListener("click", function () {
+        if (typeof gtag !== "undefined") {
+          gtag("event", "whatsapp_click", { page_path: window.location.pathname });
+        }
+      });
+    </script>
     {enableReveal && (
       <script is:inline>
         (() => {

@@ -379,6 +379,9 @@ const structuredData = {
           form.reset();
           status.textContent = "Thank you — we will be in touch within 24 hours.";
           status.style.color = "var(--ember)";
+          if (typeof gtag !== "undefined") {
+            gtag("event", "enquiry_submitted", { page_path: window.location.pathname });
+          }
         } else {
           throw new Error("server error");
         }
