@@ -5,7 +5,7 @@ import {
   useClient,
   type ArrayOfObjectsInputProps,
 } from 'sanity'
-import { Box, Button, Card, Dialog, Flex, Grid, Spinner, Stack, Text } from '@sanity/ui'
+import { Button, Flex, Grid, Spinner, Stack, Text } from '@sanity/ui'
 
 interface ImageAsset {
   _id: string
@@ -31,6 +31,8 @@ export function GalleryInput(props: ArrayOfObjectsInputProps) {
         }`,
       )
       setAssets(results)
+    } catch (err) {
+      console.error('GalleryInput: failed to fetch assets', err)
     } finally {
       setLoading(false)
     }
@@ -61,112 +63,133 @@ export function GalleryInput(props: ArrayOfObjectsInputProps) {
   }, [selected, props])
 
   const selCount = selected.size
-  const dialogHeader =
-    selCount > 0 ? `${selCount} image${selCount !== 1 ? 's' : ''} selected` : 'Select images'
 
   return (
     <Stack space={3}>
       {props.renderDefault(props)}
-      <Button
-        mode="ghost"
-        tone="primary"
-        text="Add multiple images from library"
-        onClick={handleOpen}
-        style={{ width: '100%' }}
-      />
 
-      {open && (
-        <Dialog
-          header={dialogHeader}
-          id="gallery-multi-select"
-          onClose={() => setOpen(false)}
-          width={4}
-          footer={
-            <Box padding={3}>
-              <Button
-                tone="primary"
-                disabled={selCount === 0}
-                onClick={handleAdd}
-                text={selCount > 0 ? `Add ${selCount} image${selCount !== 1 ? 's' : ''}` : 'Select images above'}
-                style={{ width: '100%' }}
-              />
-            </Box>
-          }
+      {!open ? (
+        <Button
+          mode="ghost"
+          tone="primary"
+          text="Add multiple images from library"
+          onClick={handleOpen}
+          style={{ width: '100%' }}
+        />
+      ) : (
+        <div
+          style={{
+            border: '1px solid var(--card-border-color, rgba(255,255,255,0.12))',
+            borderRadius: 3,
+            overflow: 'hidden',
+            background: 'var(--card-bg-color, #1a1a1a)',
+          }}
         >
-          <Box padding={4} style={{ minHeight: 400 }}>
+          {/* header */}
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              padding: '10px 14px',
+              borderBottom: '1px solid var(--card-border-color, rgba(255,255,255,0.12))',
+            }}
+          >
+            <Text size={1} weight="semibold">
+              {selCount > 0 ? `${selCount} image${selCount !== 1 ? 's' : ''} selected` : 'Select images'}
+            </Text>
+            <Button mode="bleed" tone="default" text="Close" onClick={() => setOpen(false)} />
+          </div>
+
+          {/* grid */}
+          <div style={{ padding: 12, maxHeight: 420, overflowY: 'auto' }}>
             {loading ? (
-              <Flex align="center" justify="center" style={{ minHeight: 400 }}>
+              <Flex align="center" justify="center" style={{ minHeight: 200 }}>
                 <Spinner muted />
               </Flex>
             ) : assets.length === 0 ? (
-              <Flex align="center" justify="center" style={{ minHeight: 400 }}>
-                <Text muted>No images in library yet.</Text>
+              <Flex align="center" justify="center" style={{ minHeight: 200 }}>
+                <Text muted size={1}>No images in library yet.</Text>
               </Flex>
             ) : (
-              <Grid columns={4} gap={2}>
+              <Grid columns={5} gap={2}>
                 {assets.map((asset) => {
                   const isSelected = selected.has(asset._id)
                   return (
-                    <Card
+                    <div
                       key={asset._id}
-                      radius={2}
+                      onClick={() => toggleSelect(asset._id)}
                       style={{
                         cursor: 'pointer',
-                        outline: isSelected ? '2px solid #2276fc' : '2px solid transparent',
                         position: 'relative',
-                        overflow: 'hidden',
                         aspectRatio: '1',
+                        borderRadius: 2,
+                        overflow: 'hidden',
+                        outline: isSelected ? '2px solid #2276fc' : '2px solid transparent',
+                        outlineOffset: 1,
                       }}
-                      onClick={() => toggleSelect(asset._id)}
                     >
                       <img
-                        src={`${asset.url}?w=220&h=220&fit=crop&auto=format`}
+                        src={`${asset.url}?w=200&h=200&fit=crop&auto=format`}
                         alt={asset.originalFilename ?? ''}
                         loading="lazy"
-                        style={{
-                          width: '100%',
-                          height: '100%',
-                          objectFit: 'cover',
-                          display: 'block',
-                        }}
+                        style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
                       />
                       {isSelected && (
-                        <div
-                          style={{
-                            position: 'absolute',
-                            inset: 0,
-                            background: 'rgba(34,118,252,0.20)',
-                          }}
-                        />
+                        <>
+                          <div
+                            style={{
+                              position: 'absolute',
+                              inset: 0,
+                              background: 'rgba(34,118,252,0.22)',
+                              pointerEvents: 'none',
+                            }}
+                          />
+                          <div
+                            style={{
+                              position: 'absolute',
+                              top: 5,
+                              right: 5,
+                              width: 20,
+                              height: 20,
+                              borderRadius: '50%',
+                              background: '#2276fc',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              color: '#fff',
+                              fontSize: 12,
+                              fontWeight: 700,
+                              pointerEvents: 'none',
+                            }}
+                          >
+                            ✓
+                          </div>
+                        </>
                       )}
-                      <div
-                        style={{
-                          position: 'absolute',
-                          top: 6,
-                          right: 6,
-                          width: 22,
-                          height: 22,
-                          borderRadius: '50%',
-                          background: isSelected ? '#2276fc' : 'rgba(0,0,0,0.35)',
-                          border: '2px solid white',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          color: 'white',
-                          fontSize: 13,
-                          fontWeight: 700,
-                          transition: 'background 0.1s',
-                        }}
-                      >
-                        {isSelected ? '✓' : ''}
-                      </div>
-                    </Card>
+                    </div>
                   )
                 })}
               </Grid>
             )}
-          </Box>
-        </Dialog>
+          </div>
+
+          {/* footer */}
+          <div
+            style={{
+              padding: '10px 14px',
+              borderTop: '1px solid var(--card-border-color, rgba(255,255,255,0.12))',
+            }}
+          >
+            <Button
+              tone="primary"
+              disabled={selCount === 0}
+              onClick={handleAdd}
+              text={selCount > 0 ? `Add ${selCount} image${selCount !== 1 ? 's' : ''}` : 'Select images above'}
+              style={{ width: '100%' }}
+            />
+          </div>
+        </div>
       )}
     </Stack>
   )
