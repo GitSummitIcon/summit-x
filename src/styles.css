@@ -2156,6 +2156,44 @@ a.press-logo-wrap:hover {
   .experiences-grid { grid-template-columns: 1fr; }
 }
 
+.faq-section {
+  padding-block: clamp(3rem, 6vw, 5rem);
+}
+
+.faq-section .display {
+  margin-top: 0.5rem;
+  margin-bottom: clamp(2rem, 4vw, 3rem);
+}
+
+.faq-list {
+  max-width: 48rem;
+}
+
+.faq-item {
+  border-top: 1px solid var(--border);
+  padding-block: 1.5rem;
+}
+
+.faq-item:last-child {
+  border-bottom: 1px solid var(--border);
+}
+
+.faq-question {
+  font-family: var(--font-display);
+  font-size: clamp(1rem, 1.5vw, 1.2rem);
+  font-weight: 400;
+  color: var(--foreground);
+  line-height: 1.4;
+  margin-bottom: 0.75rem;
+}
+
+.faq-answer {
+  color: rgb(240 231 216 / 0.75);
+  line-height: 1.75;
+  font-size: 0.95rem;
+  margin: 0;
+}
+
 /* ─────────────────────────────────────────────────────────────────────────── */
 
 .whatsapp-fab {
