@@ -1,0 +1,15 @@
+{
+  "redirects": [
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "summit-x-psi.vercel.app"
+        }
+      ],
+      "destination": "https://summitx.iconprivatecollection.com/:path*",
+      "permanent": true
+    }
+  ]
+}
