@@ -17,7 +17,7 @@ const { slug } = Astro.params;
 
 const heliSki = await sanityClient.fetch(`
   *[_type == "heliSki" && slug.current == $slug][0] {
-    name, terrainType, season, groupSize, description,
+    name, terrainType, season, groupSize, description, vimeoUrl,
     accessAndLogistics, seasonWindow, terrain,
     physicalRequirements { level, descriptor },
     "location": location{ lat, lng },
@@ -72,14 +72,48 @@ const structuredData = {
       <div class="detail-hero">
         <img src={heliSki.heroUrl} alt={heliSki.name} loading="eager" />
         <div class="overlay" style="background: var(--grad-veil);"></div>
-        {heliSki.gallery?.length > 1 && (
-          <button class="hero-photo-count" data-lb-open="0">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-            {heliSki.gallery.length} photos
-          </button>
-        )}
+        <div class="hero-media-btns">
+          {heliSki.vimeoUrl && (
+            <button class="hero-watch-film" id="watch-film-btn">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              Watch film
+            </button>
+          )}
+          {heliSki.gallery?.length > 1 && (
+            <button class="hero-photo-count" data-lb-open="0">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+              {heliSki.gallery.length} photos
+            </button>
+          )}
+        </div>
       </div>
     )}
+    {heliSki.vimeoUrl && (
+      <div class="video-modal" id="video-modal" hidden>
+        <div class="video-modal-backdrop" id="video-modal-backdrop"></div>
+        <button class="video-modal-close" id="video-modal-close" aria-label="Close video">&#215;</button>
+        <div class="video-modal-frame">
+          <iframe id="video-modal-iframe" src="" allow="autoplay; fullscreen" allowfullscreen></iframe>
+        </div>
+      </div>
+    )}
+    <script is:inline define:vars={{ vimeoUrl: heliSki.vimeoUrl }}>
+      if (vimeoUrl) {
+        const btn = document.getElementById("watch-film-btn");
+        const modal = document.getElementById("video-modal");
+        const iframe = document.getElementById("video-modal-iframe");
+        const backdrop = document.getElementById("video-modal-backdrop");
+        const closeBtn = document.getElementById("video-modal-close");
+        const videoId = vimeoUrl.match(/vimeo\.com\/(\d+)/)?.[1];
+        const embedUrl = "https://player.vimeo.com/video/" + videoId + "?autoplay=1&title=0&byline=0&portrait=0";
+        function openModal() { iframe.src = embedUrl; modal.hidden = false; document.body.style.overflow = "hidden"; }
+        function closeModal() { modal.hidden = true; iframe.src = ""; document.body.style.overflow = ""; }
+        btn?.addEventListener("click", openModal);
+        backdrop?.addEventListener("click", closeModal);
+        closeBtn?.addEventListener("click", closeModal);
+        document.addEventListener("keydown", function(e) { if (e.key === "Escape") closeModal(); });
+      }
+    </script>
 
     <div class="detail-header container">
       {heliSki.destination && (

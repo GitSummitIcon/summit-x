@@ -265,6 +265,12 @@ export const lodge = defineType({
       components: { input: GalleryInput },
       description: "Use 'Add multiple images from library' to select many at once. Drag to reorder.",
     }),
+    defineField({
+      name: "vimeoUrl",
+      title: "Video URL (Vimeo)",
+      type: "url",
+      description: "Paste the full Vimeo URL e.g. https://vimeo.com/123456789 — a Watch Film button will appear on the hero.",
+    }),
 
     // ── Legacy ────────────────────────────────────────────────────────────────
     defineField({

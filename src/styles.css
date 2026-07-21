@@ -1478,11 +1478,18 @@ textarea::placeholder {
 
 .gallery-thumb:hover img { transform: scale(1.04); }
 
-.hero-photo-count {
+.hero-media-btns {
   position: absolute;
   bottom: 1.75rem;
   right: var(--gutter);
   z-index: 3;
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.hero-photo-count,
+.hero-watch-film {
   display: inline-flex;
   align-items: center;
   gap: 0.6rem;
@@ -1499,9 +1506,55 @@ textarea::placeholder {
   transition: border-color 180ms ease, background 180ms ease;
 }
 
-.hero-photo-count:hover {
+.hero-photo-count:hover,
+.hero-watch-film:hover {
   background: rgb(15 11 8 / 0.9);
   border-color: rgb(251 240 220 / 0.7);
+}
+
+.video-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.video-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgb(0 0 0 / 0.92);
+}
+
+.video-modal-close {
+  position: absolute;
+  top: 1.25rem;
+  right: 1.5rem;
+  z-index: 2;
+  background: none;
+  border: none;
+  color: var(--cream);
+  font-size: 2rem;
+  cursor: pointer;
+  line-height: 1;
+  opacity: 0.7;
+  transition: opacity 150ms ease;
+}
+
+.video-modal-close:hover { opacity: 1; }
+
+.video-modal-frame {
+  position: relative;
+  z-index: 1;
+  width: min(90vw, 1200px);
+  aspect-ratio: 16 / 9;
+}
+
+.video-modal-frame iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
 }
 
 /* ─── Press bar ─────────────────────────────────────────────────────────── */
