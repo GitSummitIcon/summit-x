@@ -1549,12 +1549,14 @@ textarea::placeholder {
   z-index: 1;
   width: min(90vw, 1200px);
   aspect-ratio: 16 / 9;
+  background: #000;
 }
 
 .video-modal-frame iframe {
   width: 100%;
   height: 100%;
   border: none;
+  display: block;
 }
 
 /* ─── Press bar ─────────────────────────────────────────────────────────── */
