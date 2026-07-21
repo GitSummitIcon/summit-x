@@ -72,8 +72,11 @@ const structuredData = {
       <div class="detail-hero">
         <img src={heliSki.heroUrl} alt={heliSki.name} loading="eager" />
         <div class="overlay" style="background: var(--grad-veil);"></div>
-        {heliSki.vimeoUrl && <iframe id="hero-video" class="hero-video-player" src="" allow="autoplay; fullscreen" allowfullscreen hidden></iframe>}
-        {heliSki.vimeoUrl && <button class="hero-video-close" id="hero-video-close" hidden aria-label="Close video">&#215;</button>}
+        {heliSki.vimeoUrl && (
+          <div id="hero-video-overlay" class="hero-video-overlay" hidden>
+            <iframe id="hero-video" class="hero-video-player" src="" allow="autoplay; fullscreen" allowfullscreen></iframe>
+          </div>
+        )}
         <div class="hero-media-btns">
           {heliSki.vimeoUrl && (
             <button class="hero-watch-film" id="watch-film-btn">
@@ -95,13 +98,13 @@ const structuredData = {
         const btn = document.getElementById("watch-film-btn");
         const video = document.getElementById("hero-video");
         const videoId = vimeoUrl.match(/(?:vimeo\.com\/)(\d+)/)?.[1];
-        const closeBtn = document.getElementById("hero-video-close");
+        const overlay = document.getElementById("hero-video-overlay");
         const embedUrl = "https://player.vimeo.com/video/" + videoId + "?autoplay=1&title=0&byline=0&portrait=0";
-        function openVideo() { video.src = embedUrl; video.hidden = false; closeBtn.hidden = false; btn.hidden = true; }
-        function closeVideo() { video.hidden = true; video.src = ""; closeBtn.hidden = true; btn.hidden = false; }
+        function openVideo() { video.src = embedUrl; overlay.hidden = false; btn.hidden = true; }
+        function closeVideo() { overlay.hidden = true; video.src = ""; btn.hidden = false; }
         btn?.addEventListener("click", openVideo);
-        closeBtn?.addEventListener("click", closeVideo);
-        document.addEventListener("keydown", function(e) { if (e.key === "Escape" && !video.hidden) closeVideo(); });
+        overlay?.addEventListener("click", function(e) { if (!e.target.closest(".hero-video-player")) closeVideo(); });
+        document.addEventListener("keydown", function(e) { if (e.key === "Escape" && !overlay.hidden) closeVideo(); });
       }
     </script>
 
