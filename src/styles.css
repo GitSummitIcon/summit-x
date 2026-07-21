@@ -1522,6 +1522,24 @@ textarea::placeholder {
   background: #000;
 }
 
+.hero-video-close {
+  position: absolute;
+  top: 1.25rem;
+  right: 1.5rem;
+  z-index: 6;
+  background: rgb(15 11 8 / 0.72);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgb(251 240 220 / 0.28);
+  color: var(--cream);
+  font-size: 1.4rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0.35rem 0.7rem;
+  transition: background 180ms ease;
+}
+
+.hero-video-close:hover { background: rgb(15 11 8 / 0.9); }
+
 /* ─── Press bar ─────────────────────────────────────────────────────────── */
 
 .press-bar {

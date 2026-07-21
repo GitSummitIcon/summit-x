@@ -104,6 +104,7 @@ const structuredData = {
         <img src={lodge.heroUrl} alt={lodge.name} loading="eager" />
         <div class="overlay" style="background: var(--grad-veil);"></div>
         {lodge.vimeoUrl && <iframe id="hero-video" class="hero-video-player" src="" allow="autoplay; fullscreen" allowfullscreen hidden></iframe>}
+        {lodge.vimeoUrl && <button class="hero-video-close" id="hero-video-close" hidden aria-label="Close video">&#215;</button>}
         <div class="hero-media-btns">
           {lodge.vimeoUrl && (
             <button class="hero-watch-film" id="watch-film-btn">
@@ -125,12 +126,13 @@ const structuredData = {
         const btn = document.getElementById("watch-film-btn");
         const video = document.getElementById("hero-video");
         const videoId = vimeoUrl.match(/(?:vimeo\.com\/)(\d+)/)?.[1];
+        const closeBtn = document.getElementById("hero-video-close");
         const embedUrl = "https://player.vimeo.com/video/" + videoId + "?autoplay=1&title=0&byline=0&portrait=0";
-        btn?.addEventListener("click", function() {
-          video.src = embedUrl;
-          video.hidden = false;
-          btn.hidden = true;
-        });
+        function openVideo() { video.src = embedUrl; video.hidden = false; closeBtn.hidden = false; btn.hidden = true; }
+        function closeVideo() { video.hidden = true; video.src = ""; closeBtn.hidden = true; btn.hidden = false; }
+        btn?.addEventListener("click", openVideo);
+        closeBtn?.addEventListener("click", closeVideo);
+        document.addEventListener("keydown", function(e) { if (e.key === "Escape" && !video.hidden) closeVideo(); });
       }
     </script>
 
