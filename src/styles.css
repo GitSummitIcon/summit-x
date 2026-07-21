@@ -1523,6 +1523,8 @@ textarea::placeholder {
   cursor: pointer;
 }
 
+.hero-video-overlay[hidden] { display: none !important; }
+
 .hero-video-player {
   width: min(92%, 1100px);
   aspect-ratio: 16 / 9;
