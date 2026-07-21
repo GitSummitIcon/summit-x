@@ -75,6 +75,7 @@ const structuredData = {
       <div class="detail-hero">
         <img src={chalet.heroUrl} alt={chalet.name} loading="eager" />
         <div class="overlay" style="background: var(--grad-veil);"></div>
+        {chalet.vimeoUrl && <iframe id="hero-video" class="hero-video-player" src="" allow="autoplay; fullscreen" allowfullscreen hidden></iframe>}
         <div class="hero-media-btns">
           {chalet.vimeoUrl && (
             <button class="hero-watch-film" id="watch-film-btn">
@@ -91,30 +92,17 @@ const structuredData = {
         </div>
       </div>
     )}
-    {chalet.vimeoUrl && (
-      <div class="video-modal" id="video-modal" hidden>
-        <div class="video-modal-backdrop" id="video-modal-backdrop"></div>
-        <button class="video-modal-close" id="video-modal-close" aria-label="Close video">&#215;</button>
-        <div class="video-modal-frame">
-          <iframe id="video-modal-iframe" src="" allow="autoplay; fullscreen" allowfullscreen></iframe>
-        </div>
-      </div>
-    )}
     <script is:inline define:vars={{ vimeoUrl: chalet.vimeoUrl }}>
       if (vimeoUrl) {
         const btn = document.getElementById("watch-film-btn");
-        const modal = document.getElementById("video-modal");
-        const iframe = document.getElementById("video-modal-iframe");
-        const backdrop = document.getElementById("video-modal-backdrop");
-        const closeBtn = document.getElementById("video-modal-close");
-        const videoId = vimeoUrl.match(/vimeo\.com\/(\d+)/)?.[1];
+        const video = document.getElementById("hero-video");
+        const videoId = vimeoUrl.match(/(?:vimeo\.com\/)(\d+)/)?.[1];
         const embedUrl = "https://player.vimeo.com/video/" + videoId + "?autoplay=1&title=0&byline=0&portrait=0";
-        function openModal() { iframe.src = embedUrl; modal.hidden = false; document.body.style.overflow = "hidden"; }
-        function closeModal() { modal.hidden = true; iframe.src = ""; document.body.style.overflow = ""; }
-        btn?.addEventListener("click", openModal);
-        modal?.addEventListener("click", function(e) { if (!e.target.closest(".video-modal-frame")) closeModal(); });
-        closeBtn?.addEventListener("click", closeModal);
-        document.addEventListener("keydown", function(e) { if (e.key === "Escape") closeModal(); });
+        btn?.addEventListener("click", function() {
+          video.src = embedUrl;
+          video.hidden = false;
+          btn.hidden = true;
+        });
       }
     </script>
 
