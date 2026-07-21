@@ -103,8 +103,8 @@ const structuredData = {
         const videoId = vimeoUrl.match(/(?:vimeo\.com\/)(\d+)/)?.[1];
         const overlay = document.getElementById("hero-video-overlay");
         const embedUrl = "https://player.vimeo.com/video/" + videoId + "?autoplay=1&title=0&byline=0&portrait=0";
-        function openVideo() { video.src = embedUrl; overlay.hidden = false; btn.hidden = true; }
-        function closeVideo() { overlay.hidden = true; video.src = ""; btn.hidden = false; }
+        function openVideo() { video.src = embedUrl; overlay.hidden = false; btn.hidden = true; document.body.style.overflow = "hidden"; }
+        function closeVideo() { overlay.hidden = true; video.src = ""; btn.hidden = false; document.body.style.overflow = ""; }
         btn?.addEventListener("click", openVideo);
         overlay?.addEventListener("click", function(e) { if (!e.target.closest(".hero-video-player")) closeVideo(); });
         document.addEventListener("keydown", function(e) { if (e.key === "Escape" && !overlay.hidden) closeVideo(); });
