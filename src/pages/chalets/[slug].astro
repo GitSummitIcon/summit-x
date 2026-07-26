@@ -54,6 +54,16 @@ const structuredData = {
   ...(chalet.heroUrl && { image: chalet.heroUrl }),
   ...(chalet.destination && { location: { "@type": "Place", name: chalet.destination.name } }),
   numberOfRooms: chalet.bedrooms,
+  ...(chalet.sleeps && { occupancy: { "@type": "QuantitativeValue", maxValue: chalet.sleeps } }),
+  priceRange: priceDisplay,
+  ...(!chalet.priceOnRequest && chalet.priceRange?.min && {
+    makesOffer: {
+      "@type": "Offer",
+      price: chalet.priceRange.min,
+      priceCurrency: chalet.priceRange.currency ?? "GBP",
+      description: "Per week",
+    },
+  }),
   ...(chalet.amenities?.length && {
     amenityFeature: chalet.amenities.map((a: string) => ({ "@type": "LocationFeatureSpecification", name: a, value: true })),
   }),

@@ -2,15 +2,33 @@
 
 > Luxury alpine travel brand. A sub-brand of Icon Private Collection.
 
-Summit X curates exclusive alpine experiences for discerning travellers — private chalets, heli-ski programmes, guided expeditions, and boutique mountain lodges. Every property and programme is personally selected and arranged by our team.
+Summit X curates exclusive alpine experiences for discerning travellers — private chalets, heli-ski programmes, guided expeditions, and boutique mountain lodges. Every property and programme is personally selected and arranged by our team. Operating for over 14 years, Summit X serves a high-net-worth clientele seeking genuine insider access to the world's finest mountain environments.
 
 ## What we offer
 
-- **Alpine chalets** — private luxury chalets in premier ski and mountain destinations, from intimate bolt-holes to grand multi-chalet estates
-- **Heli-ski programmes** — exclusive helicopter skiing in remote terrain, arranged with certified guides and full logistical support
-- **Expeditions** — guided alpine and mountain expeditions combining adventure with exceptional accommodation
-- **Mountain lodges** — boutique lodges positioned at altitude, combining comfort with access to wilderness
-- **Destinations** — curated destination guides for the world's finest alpine locations
+- **Alpine chalets** — private luxury chalets in premier ski and mountain destinations, from intimate bolt-holes to grand multi-chalet estates. Each listing includes bedroom count, guest capacity, altitude, amenities, and price band where available.
+- **Heli-ski programmes** — exclusive helicopter skiing in remote terrain, arranged with certified guides and full logistical support. Listings include terrain type, group size, season window, and physical requirements.
+- **Expeditions** — guided alpine and mountain expeditions combining adventure with exceptional accommodation. Listings include duration, season, terrain, and physical grading.
+- **Mountain lodges** — boutique lodges positioned at altitude, combining comfort with access to wilderness. Listings include style, capacity, and signature experiences.
+- **Destinations** — curated destination guides for the world's finest alpine locations, including FAQs specific to each destination.
+
+## Key pages
+
+- Home: https://summitx.iconprivatecollection.com
+- Chalets: https://summitx.iconprivatecollection.com/chalets
+- Expeditions: https://summitx.iconprivatecollection.com/expeditions
+- Heli-Ski: https://summitx.iconprivatecollection.com/heli-ski
+- Lodges: https://summitx.iconprivatecollection.com/lodges
+- Destinations: https://summitx.iconprivatecollection.com/destinations
+- The Edit (journal): https://summitx.iconprivatecollection.com/the-edit
+
+## Content structure
+
+Each chalet, expedition, lodge, and heli-ski page includes:
+- Structured data (Schema.org JSON-LD) for machine-readable property details
+- Plain-text specification blocks: bedroom count, guest capacity, altitude, terrain, season dates, physical requirements
+- FAQ sections with destination-specific questions and answers
+- Gallery imagery with descriptive context
 
 ## The Edit
 
@@ -18,9 +36,10 @@ The Edit is the Summit X journal: editorial coverage of alpine culture, destinat
 
 ## Enquiries
 
-All programmes are bespoke and price-on-request. To enquire:
+All programmes are bespoke. Some properties publish a price band; all can be booked on a price-on-request basis. To enquire:
 - Email: summitx@iconprivatecollection.com
 - Website: https://summitx.iconprivatecollection.com
+- WhatsApp: +447913072115
 
 ## About Icon Private Collection
 
