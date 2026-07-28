@@ -1690,7 +1690,6 @@ a.press-logo-wrap:hover {
 
 .property-map { height: 480px; }
 
-.property-map .leaflet-tile-pane { filter: grayscale(100%); }
 
 /* ─── Search overlay ─────────────────────────────────────────────────────── */
 
