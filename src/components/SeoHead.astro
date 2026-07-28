@@ -20,7 +20,7 @@ const {
 const siteUrl = Astro.site ?? new URL("http://localhost:4321");
 const canonical = new URL(Astro.url.pathname, siteUrl);
 const absoluteImage = new URL(image, siteUrl);
-const pageTitle = title === siteConfig.title ? title : `${title} | ${siteConfig.name}`;
+const pageTitle = title ?? siteConfig.title;
 ---
 
 <meta name="google-site-verification" content="TO7yeSTJ7MLy1MsknSdiYvRgOjrBR06hclpenyIZ1Yc" />
