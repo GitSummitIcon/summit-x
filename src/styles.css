@@ -210,9 +210,9 @@ a:hover {
 .brand-mark-line {
   flex: 1;
   height: 0;
-  border-top: 1px solid currentColor;
-  align-self: center;
+  border-top: 0.5px solid currentColor;
   opacity: 0.5;
+  transform: translateY(0.2em);
 }
 .brand-mark-x {
   font-size: 0.85em;
