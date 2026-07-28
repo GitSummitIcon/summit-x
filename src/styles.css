@@ -197,6 +197,7 @@ a:hover {
 .brand-mark-summit {
   font-size: 1.5em;
   letter-spacing: 0.25em;
+  text-indent: 0.25em;
   font-weight: 600;
   line-height: 1;
   text-align: center;
@@ -212,7 +213,7 @@ a:hover {
   background: var(--border);
 }
 .brand-mark-x {
-  font-size: 0.48em;
+  font-size: 0.65em;
   font-weight: 400;
   line-height: 1;
   letter-spacing: 0;
