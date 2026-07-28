@@ -1,6 +1,6 @@
 export const siteConfig = {
-  name: "Summit X",
-  title: "Summit X — Alpine Elegance and Adventure",
+  name: "Summit X Icon Private Collection",
+  title: "Summit X Icon Private Collection — Alpine Elegance and Adventure",
   description:
     "Curated alpine chalets, heli-ski programmes, expeditions and lodges. Handpicked for those who seek the extraordinary.",
   tagline: "Alpine elegance and adventure. Untamed. Impeccable.",

@@ -34,7 +34,7 @@ const lodge = await sanityClient.fetch(`
 
 if (!lodge) return Astro.redirect("/lodges");
 
-const seoTitle = lodge.seoTitle ?? `${lodge.name} — Summit X`;
+const seoTitle = lodge.seoTitle ?? `${lodge.name} — Summit X Icon Private Collection`;
 const priceDisplay = lodge.priceOnRequest || !lodge.priceRange?.min
   ? "Price on request"
   : `${lodge.priceRange.currency ?? "GBP"} ${lodge.priceRange.min.toLocaleString()}–${lodge.priceRange.max?.toLocaleString() ?? ""}`;
@@ -45,7 +45,7 @@ const descParts = [
   lodge.sleeps && `sleeps ${lodge.sleeps}`,
 ].filter(Boolean).join(", ");
 const seoDescription = lodge.metaDescription
-  ?? `${lodge.name}${descParts ? ` — ${descParts}` : ""}. A boutique mountain lodge curated by Summit X.`;
+  ?? `${lodge.name}${descParts ? ` — ${descParts}` : ""}. A boutique mountain lodge curated by Summit X Icon Private Collection.`;
 
 const levelColor: Record<string, string> = {
   None: "#7ab97a",
@@ -84,7 +84,7 @@ const structuredData = {
       value: true,
     })),
   }),
-  brand: { "@type": "Brand", name: "Summit X" },
+  brand: { "@type": "Brand", name: "Summit X Icon Private Collection" },
   parentOrganization: { "@type": "Organization", name: "Icon Private Collection" },
   email: "summitx@iconprivatecollection.com",
 };

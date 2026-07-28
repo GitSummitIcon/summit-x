@@ -44,7 +44,7 @@ const destination = await sanityClient.fetch(`
 
 if (!destination) return Astro.redirect("/destinations");
 
-const description = destination.intro ?? `Discover ${destination.name}${destination.region ? `, ${destination.region}` : ""} — luxury alpine chalets, expeditions and heli-ski curated by Summit X.`;
+const description = destination.intro ?? `Discover ${destination.name}${destination.region ? `, ${destination.region}` : ""} — luxury alpine chalets, expeditions and heli-ski curated by Summit X Icon Private Collection.`;
 
 function blocksToText(blocks: any[]): string {
   return (blocks ?? []).map((b: any) => b.children?.map((c: any) => c.text).join("")).join(" ");
@@ -71,7 +71,7 @@ const structuredData = destination.faqs?.length > 0 ? {
 ---
 
 <BaseLayout
-  title={`${destination.name} — Summit X`}
+  title={`${destination.name} — Summit X Icon Private Collection`}
   description={description}
   image={destination.heroUrl ?? undefined}
   structuredData={structuredData}

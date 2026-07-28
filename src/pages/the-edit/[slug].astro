@@ -24,7 +24,7 @@ const article = await sanityClient.fetch(`
 
 if (!article) return Astro.redirect("/the-edit");
 
-const description = `${article.title} — from The Edit, the Summit X journal on alpine travel, culture, and adventure.`;
+const description = `${article.title} — from The Edit, the Summit by Icon Private Collection journal on alpine travel, culture, and adventure.`;
 
 const structuredData = {
   "@context": "https://schema.org",
@@ -36,18 +36,18 @@ const structuredData = {
   ...(article.author && { author: { "@type": "Person", name: article.author } }),
   publisher: {
     "@type": "Organization",
-    name: "Summit X",
+    name: "Summit X Icon Private Collection",
     parentOrganization: { "@type": "Organization", name: "Icon Private Collection" },
   },
   isPartOf: {
     "@type": "PublicationVolume",
-    name: "The Edit — Summit X",
+    name: "The Edit — Summit X Icon Private Collection",
   },
 };
 ---
 
 <BaseLayout
-  title={`${article.title} — The Edit — Summit X`}
+  title={`${article.title} — The Edit — Summit X Icon Private Collection`}
   description={description}
   image={article.heroUrl ?? undefined}
   type="article"

@@ -40,7 +40,7 @@ const descParts = [
   heliSki.terrainType && `${heliSki.terrainType} terrain`,
   heliSki.season && `${heliSki.season} season`,
 ].filter(Boolean).join(", ");
-const description = `${heliSki.name}${descParts ? ` — ${descParts}` : ""}. Exclusive heli-ski experience curated by Summit X.`;
+const description = `${heliSki.name}${descParts ? ` — ${descParts}` : ""}. Exclusive heli-ski experience curated by Summit X Icon Private Collection.`;
 
 const structuredData = {
   "@context": "https://schema.org",
@@ -53,7 +53,7 @@ const structuredData = {
   touristType: "Ski enthusiasts",
   provider: {
     "@type": "TravelAgency",
-    name: "Summit X",
+    name: "Summit X Icon Private Collection",
     email: "summitx@iconprivatecollection.com",
     parentOrganization: { "@type": "Organization", name: "Icon Private Collection" },
   },
@@ -61,7 +61,7 @@ const structuredData = {
 ---
 
 <BaseLayout
-  title={`${heliSki.name} — Summit X`}
+  title={`${heliSki.name} — Summit X Icon Private Collection`}
   description={description}
   image={heliSki.heroUrl ?? undefined}
   structuredData={structuredData}
