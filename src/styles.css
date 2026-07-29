@@ -988,6 +988,7 @@ textarea::placeholder {
 .footer-brand .label-eyebrow,
 .footer-col .label-eyebrow {
   margin-top: 0;
+  margin-bottom: 0;
 }
 .footer-brand p {
   margin-top: 1rem;
@@ -1009,6 +1010,7 @@ textarea::placeholder {
   margin: 1rem 0 0;
   padding: 0;
   list-style: none;
+  font-size: 0.9rem;
 }
 
 .footer-ipc-link {
