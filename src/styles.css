@@ -988,6 +988,18 @@ textarea::placeholder {
 .footer-brand p {
   margin-top: 1.75rem;
 }
+.footer-about-blurb {
+  font-size: 0.875rem;
+  line-height: 1.65;
+}
+.footer-about-link {
+  display: inline-block;
+  margin-top: 1rem;
+  font-size: 0.875rem;
+  color: var(--ember);
+  text-decoration: none;
+}
+.footer-about-link:hover { opacity: 0.8; }
 
 .footer-col ul {
   margin: 1rem 0 0;
