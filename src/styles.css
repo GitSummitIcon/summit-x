@@ -985,7 +985,8 @@ textarea::placeholder {
   line-height: 1.6;
 }
 
-.footer-brand .label-eyebrow {
+.footer-brand .label-eyebrow,
+.footer-col .label-eyebrow {
   margin-top: 0;
 }
 .footer-brand p {
