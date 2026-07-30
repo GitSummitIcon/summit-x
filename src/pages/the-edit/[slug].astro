@@ -36,18 +36,18 @@ const structuredData = {
   ...(article.author && { author: { "@type": "Person", name: article.author } }),
   publisher: {
     "@type": "Organization",
-    name: "Summit X Icon Private Collection",
+    name: "Summit x Icon Private Collection",
     parentOrganization: { "@type": "Organization", name: "Icon Private Collection" },
   },
   isPartOf: {
     "@type": "PublicationVolume",
-    name: "The Edit — Summit X Icon Private Collection",
+    name: "The Edit — Summit x Icon Private Collection",
   },
 };
 ---
 
 <BaseLayout
-  title={`${article.title} — The Edit — Summit X Icon Private Collection`}
+  title={`${article.title} — The Edit — Summit x Icon Private Collection`}
   description={description}
   image={article.heroUrl ?? undefined}
   type="article"

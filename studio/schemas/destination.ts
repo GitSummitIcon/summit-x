@@ -164,8 +164,21 @@ export const destination = defineType({
             defineField({
               name: "answer",
               title: "Answer",
-              type: "text",
-              rows: 3,
+              type: "array",
+              of: [
+                {
+                  type: "block",
+                  styles: [{ title: "Normal", value: "normal" }],
+                  lists: [],
+                  marks: {
+                    decorators: [
+                      { title: "Bold", value: "strong" },
+                      { title: "Italic", value: "em" },
+                    ],
+                    annotations: [],
+                  },
+                },
+              ],
               validation: (r) => r.required(),
             }),
           ],

@@ -36,7 +36,7 @@ const descParts = [
   chalet.bedrooms && `${chalet.bedrooms} bedrooms`,
   chalet.sleeps && `sleeps ${chalet.sleeps}`,
 ].filter(Boolean).join(", ");
-const description = `${chalet.name}${descParts ? ` — ${descParts}` : ""}. A luxury alpine chalet curated by Summit X Icon Private Collection.`;
+const description = `${chalet.name}${descParts ? ` — ${descParts}` : ""}. A luxury alpine chalet curated by Summit x Icon Private Collection.`;
 
 function formatCoords(lat: number, lng: number): string {
   const fmt = (n: number) => (Math.trunc(n * 100) / 100).toFixed(2);
@@ -67,14 +67,14 @@ const structuredData = {
   ...(chalet.amenities?.length && {
     amenityFeature: chalet.amenities.map((a: string) => ({ "@type": "LocationFeatureSpecification", name: a, value: true })),
   }),
-  brand: { "@type": "Brand", name: "Summit X Icon Private Collection" },
+  brand: { "@type": "Brand", name: "Summit x Icon Private Collection" },
   parentOrganization: { "@type": "Organization", name: "Icon Private Collection" },
   email: "summitx@iconprivatecollection.com",
 };
 ---
 
 <BaseLayout
-  title={`${chalet.name} — Summit X Icon Private Collection`}
+  title={`${chalet.name} — Summit x Icon Private Collection`}
   description={description}
   image={chalet.heroUrl ?? undefined}
   structuredData={structuredData}

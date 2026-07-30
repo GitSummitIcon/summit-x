@@ -31,7 +31,7 @@ const expedition = await sanityClient.fetch(`
 
 if (!expedition) return Astro.redirect("/expeditions");
 
-const seoTitle = expedition.seoTitle ?? `${expedition.name} — Summit X Icon Private Collection`;
+const seoTitle = expedition.seoTitle ?? `${expedition.name} — Summit x Icon Private Collection`;
 
 const descParts = [
   expedition.destination?.name && `in ${expedition.destination.name}`,
@@ -39,7 +39,7 @@ const descParts = [
   expedition.season && `${expedition.season} season`,
 ].filter(Boolean).join(", ");
 const seoDescription = expedition.metaDescription
-  ?? `${expedition.name}${descParts ? ` — ${descParts}` : ""}. A guided mountain expedition curated by Summit X Icon Private Collection.`;
+  ?? `${expedition.name}${descParts ? ` — ${descParts}` : ""}. A guided mountain expedition curated by Summit x Icon Private Collection.`;
 
 const levelColor: Record<string, string> = {
   None: "#7ab97a",
@@ -68,7 +68,7 @@ const structuredData = {
   touristType: "Adventure travellers",
   provider: {
     "@type": "TravelAgency",
-    name: "Summit X Icon Private Collection",
+    name: "Summit x Icon Private Collection",
     email: "summitx@iconprivatecollection.com",
     parentOrganization: { "@type": "Organization", name: "Icon Private Collection" },
   },
